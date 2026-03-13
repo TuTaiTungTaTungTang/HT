@@ -38,12 +38,15 @@ if (session_status() === PHP_SESSION_NONE) {
                         if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
                             echo '<a class="nav-link active" aria-current="page" href="product_list.php">QUẢN LÝ MẶT HÀNG</a>';
                         } else {
-                            echo '<div class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">SẢN PHẨM</div>
-                                <ul class="dropdown-menu fs-5 text">
-                                    <li><a class="dropdown-item" href="product.php?catID=1">Áo</a></li>
-                                    <li><a class="dropdown-item" href="product.php?catID=2">Quần</a></li>
-                                    <li><a class="dropdown-item" href="product.php?catID=3">Phụ kiện</a></li>
-                                </ul>';
+                            $navCategoryObj = new CT27502\Project\Category($PDO);
+                            $navCategories = $navCategoryObj->all();
+                            echo '<div class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">SẢN PHẨM</div>';
+                            echo '<ul class="dropdown-menu fs-5 text">';
+                            echo '<li><a class="dropdown-item" href="/onlinestore/public/product.php">Tất cả sản phẩm</a></li>';
+                            foreach ($navCategories as $navCat) {
+                                echo '<li><a class="dropdown-item" href="/onlinestore/public/product.php?catID=' . (int)$navCat->getID() . '">' . htmlspecialchars($navCat->cat_name, ENT_QUOTES, 'UTF-8') . '</a></li>';
+                            }
+                            echo '</ul>';
                         }
                         ?>
                     </li>
@@ -61,7 +64,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     <?php
                     if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
                         echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="product.php">ƯU ĐÃI</a></li>';
-                        echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="register.php">TUYỂN DỤNG</a></li>';
+                        echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="/onlinestore/public/tuyen_dung.php">TUYỂN DỤNG</a></li>';
                         echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="/onlinestore/public/lien_he.php">LIÊN HỆ</a></li>';
                     }
                     ?>

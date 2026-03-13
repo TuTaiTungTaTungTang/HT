@@ -22,14 +22,14 @@ html {
     font-size: 62.5%;
     line-height: 1.6;
     font-family: var(--font-body);
-    background-color: #ededed;
+    background-color: #ffffff;
     scroll-behavior: smooth;
 }
 
 body {
     font-size: 1.6rem;
     color: var(--text-color);
-    background: #ededed;
+    background: #ffffff;
     min-height: 100vh;
     padding-bottom: 0;
 }

@@ -162,33 +162,83 @@ class Product
     }
 
     // Đếm số lượng sản phẩm
-    public function count($cat_id): int
+    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null): int
     {
-        if ($cat_id === -1) {
-            $statement = $this->db->prepare('SELECT count(*) FROM products');
-            $statement->execute();
-        } else {
-            $statement = $this->db->prepare('SELECT count(*) FROM products WHERE cat_id = ?');
-            $statement->execute([$cat_id]);
+        $sql = 'SELECT count(*) FROM products WHERE 1=1';
+        $params = [];
+
+        if ($cat_id !== -1) {
+            $sql .= ' AND cat_id = :cat_id';
+            $params[':cat_id'] = $cat_id;
         }
+
+        if ($minPrice !== null) {
+            $sql .= ' AND pd_price >= :min_price';
+            $params[':min_price'] = $minPrice;
+        }
+
+        if ($maxPrice !== null) {
+            $sql .= ' AND pd_price <= :max_price';
+            $params[':max_price'] = $maxPrice;
+        }
+
+        $statement = $this->db->prepare($sql);
+        $statement->execute($params);
         return $statement->fetchColumn();
     }
     
     // Phân trang
-    public function paginate(int $offset = 0, int $limit = 12, int $cat_id = -1): array
+    public function paginate(
+        int $offset = 0,
+        int $limit = 12,
+        int $cat_id = -1,
+        string $sort = 'newest',
+        ?float $minPrice = null,
+        ?float $maxPrice = null
+    ): array
     {
         $products = [];
-        if ($cat_id === -1) {
-            $statement = $this->db->prepare('SELECT * FROM products ORDER BY pd_id DESC LIMIT  :offset, :limit');
-            $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
-            $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-        } else {
-            $statement = $this->db->prepare('SELECT * FROM products WHERE cat_id = :cat_id ORDER BY pd_id DESC LIMIT  :offset, :limit');
-            $statement->bindValue(':cat_id', $cat_id, PDO::PARAM_INT);
-            $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
-            $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $orderBy = match ($sort) {
+            'name_asc' => 'pd_name ASC',
+            'name_desc' => 'pd_name DESC',
+            'price_asc' => 'pd_price ASC',
+            'price_desc' => 'pd_price DESC',
+            default => 'pd_id DESC'
+        };
+
+        $sql = "SELECT * FROM products WHERE 1=1";
+
+        if ($cat_id !== -1) {
+            $sql .= ' AND cat_id = :cat_id';
         }
+
+        if ($minPrice !== null) {
+            $sql .= ' AND pd_price >= :min_price';
+        }
+
+        if ($maxPrice !== null) {
+            $sql .= ' AND pd_price <= :max_price';
+        }
+
+        $sql .= " ORDER BY $orderBy LIMIT :offset, :limit";
+        $statement = $this->db->prepare($sql);
+
+        if ($cat_id !== -1) {
+            $statement->bindValue(':cat_id', $cat_id, PDO::PARAM_INT);
+        }
+
+        if ($minPrice !== null) {
+            $statement->bindValue(':min_price', $minPrice);
+        }
+
+        if ($maxPrice !== null) {
+            $statement->bindValue(':max_price', $maxPrice);
+        }
+
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
         $statement->execute();
+
         while ($row = $statement->fetch()) {
             $product = new Product($this->db);
             $product->fillFromDB($row);

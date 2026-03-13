@@ -18,6 +18,7 @@ include_once __DIR__ . '/../src/partials/header.php';
                     <ul class="info-list">
                         <li><a href="/onlinestore/public/gioi_thieu.php">Gioi thieu</a></li>
                         <li><a class="active" href="/onlinestore/public/su_kien.php">Su kien</a></li>
+                        <li><a href="/onlinestore/public/tuyen_dung.php">Tuyen dung</a></li>
                         <li><a href="/onlinestore/public/lien_he.php">Lien he</a></li>
                     </ul>
                 </aside>
