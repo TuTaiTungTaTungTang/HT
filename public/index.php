@@ -9,6 +9,7 @@ $allProducts = $product->all();
 
 $category = new Category($PDO);
 $categories = $category->all();
+$collectionTabCategories = array_slice($categories, 0, 6);
 
 
 include_once __DIR__ .'/../src/partials/header.php'
@@ -67,30 +68,46 @@ include_once __DIR__ .'/../src/partials/header.php'
                     <span class="countdown-pill">00</span>
                 </div>
 
-                <div class="row hot-product-list">
+                <div class="row hot-product-list home-product-grid">
                     <?php
-                    $promoProducts = array_slice($allProducts, 0, 6);
+                    $promoProducts = array_slice($allProducts, 0, 4);
                     foreach ($promoProducts as $promoProduct) :
                     ?>
-                    <div class="col-lg-2 col-sm-4 col-6 card card-product">
+                    <div
+                        class="col-xl-3 col-lg-3 col-md-4 col-6 home-product-card"
+                        data-product-id="<?= $promoProduct->getID() ?>"
+                        data-product-name="<?= html_escape($promoProduct->pd_name) ?>"
+                        data-product-price="<?= number_format(html_escape($promoProduct->pd_price)) . '₫' ?>"
+                        data-product-image="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>"
+                        data-product-link="detail_product.php?id=<?= $promoProduct->getID() ?>"
+                    >
+                        <div class="home-product-media">
+                            <button type="button" class="favorite-btn" aria-label="Thêm vào yêu thích">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                            <a href="detail_product.php?id=<?= $promoProduct->getID() ?>" class="product_a">
+                                <img src="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>" class="home-product-image" alt="...">
+                            </a>
+                            <div class="home-hover-actions">
+                                <button type="button" class="home-action-btn">Thêm vào giỏ</button>
+                                <button
+                                    type="button"
+                                    class="home-action-btn quick-view-trigger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#homeQuickViewModal"
+                                    data-name="<?= html_escape($promoProduct->pd_name) ?>"
+                                    data-price="<?= number_format(html_escape($promoProduct->pd_price)) . '₫' ?>"
+                                    data-image="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>"
+                                    data-link="detail_product.php?id=<?= $promoProduct->getID() ?>"
+                                >Xem nhanh</button>
+                            </div>
+                        </div>
                         <a href="detail_product.php?id=<?= $promoProduct->getID() ?>" class="product_a">
-                            <img src="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>" class="card-img-top" alt="...">
                             <div class="card-title-wrap">
-                                <h6 class="card-title"><?= html_escape($promoProduct->pd_name) ?></h6>
+                                <h6 class="home-product-title"><?= html_escape($promoProduct->pd_name) ?></h6>
                             </div>
                         </a>
-                        <p class="card-text price-product"><?= number_format(html_escape($promoProduct->pd_price)) . '₫'?></p>
-                        <?php if(isset($_SESSION['role']) && $_SESSION['role']=='user' && isset($_SESSION['name']) && isset($_SESSION['id'])){
-                        echo'
-                        <form action="cart_add.php" method="post">
-                            <input type="hidden" name="idsanpham" value="'.$promoProduct->getID().'">
-                            <input type="hidden" name="iduser" value="'.$_SESSION['id'].'">
-                            <button class="btn-add_cart w-100" name="themgiohang">Thêm vào giỏ hàng</button>
-                        </form>
-                        ';
-                        }
-                        else echo '<button class="btn-add_cart w-100" disabled>Thêm vào giỏ hàng</button>';
-                        ?>
+                        <p class="home-product-price"><?= number_format(html_escape($promoProduct->pd_price)) . '₫'?></p>
                     </div>
                     <?php endforeach ?>
                 </div>
@@ -102,87 +119,130 @@ include_once __DIR__ .'/../src/partials/header.php'
                     <p class="section-divider">___ /// ___</p>
                     <p class="section-sub">Top trending tuần này</p>
                 </div>
-                <div class="row hot-product-list">
+                <div class="row hot-product-list home-product-grid">
                     <?php
-                    $bestSellerProducts = array_slice($allProducts, 6, 6);
+                    $bestSellerProducts = array_slice($allProducts, 4, 4);
                     foreach ($bestSellerProducts as $bestProduct) :
                     ?>
-                    <div class="col-lg-2 col-sm-4 col-6 card card-product">
+                    <div
+                        class="col-xl-3 col-lg-3 col-md-4 col-6 home-product-card"
+                        data-product-id="<?= $bestProduct->getID() ?>"
+                        data-product-name="<?= html_escape($bestProduct->pd_name) ?>"
+                        data-product-price="<?= number_format(html_escape($bestProduct->pd_price)) . '₫' ?>"
+                        data-product-image="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>"
+                        data-product-link="detail_product.php?id=<?= $bestProduct->getID() ?>"
+                    >
+                        <div class="home-product-media">
+                            <button type="button" class="favorite-btn" aria-label="Thêm vào yêu thích">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                            <a href="detail_product.php?id=<?= $bestProduct->getID() ?>" class="product_a">
+                                <img src="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>" class="home-product-image" alt="...">
+                            </a>
+                            <div class="home-hover-actions">
+                                <button type="button" class="home-action-btn">Thêm vào giỏ</button>
+                                <button
+                                    type="button"
+                                    class="home-action-btn quick-view-trigger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#homeQuickViewModal"
+                                    data-name="<?= html_escape($bestProduct->pd_name) ?>"
+                                    data-price="<?= number_format(html_escape($bestProduct->pd_price)) . '₫' ?>"
+                                    data-image="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>"
+                                    data-link="detail_product.php?id=<?= $bestProduct->getID() ?>"
+                                >Xem nhanh</button>
+                            </div>
+                        </div>
                         <a href="detail_product.php?id=<?= $bestProduct->getID() ?>" class="product_a">
-                            <img src="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>" class="card-img-top" alt="...">
                             <div class="card-title-wrap">
-                                <h6 class="card-title"><?= html_escape($bestProduct->pd_name) ?></h6>
+                                <h6 class="home-product-title"><?= html_escape($bestProduct->pd_name) ?></h6>
                             </div>
                         </a>
-                        <p class="card-text price-product"><?= number_format(html_escape($bestProduct->pd_price)) . '₫'?></p>
-                        <?php if(isset($_SESSION['role']) && $_SESSION['role']=='user' && isset($_SESSION['name']) && isset($_SESSION['id'])){
-                        echo'
-                        <form action="cart_add.php" method="post">
-                            <input type="hidden" name="idsanpham" value="'.$bestProduct->getID().'">
-                            <input type="hidden" name="iduser" value="'.$_SESSION['id'].'">
-                            <button class="btn-add_cart w-100" name="themgiohang">Thêm vào giỏ hàng</button>
-                        </form>
-                        ';
-                        }
-                        else echo '<button class="btn-add_cart w-100" disabled>Thêm vào giỏ hàng</button>';
-                        ?>
+                        <p class="home-product-price"><?= number_format(html_escape($bestProduct->pd_price)) . '₫'?></p>
                     </div>
                     <?php endforeach ?>
                 </div>
             </section>
 
-            <?php foreach ($categories as $category) : ?>
-                <section class="container-fluid category-hot">
-                    <div class="section-head">
-                        <h2 class="title">BỘ SƯU TẬP</h2>
-                    </div>
+            <section class="container-fluid category-hot" id="bo-suu-tap">
+                <div class="section-head">
+                    <h2 class="title">BỘ SƯU TẬP</h2>
+                </div>
 
-                    <div class="collection-tabs">
-                        <span class="tab-pill active">CLAIR DE SPRING</span>
-                        <span class="tab-pill">XUÂN NHIÊN</span>
-                        <span class="tab-pill">NIGHT OUT</span>
-                        <span class="tab-pill">CITY HOURS</span>
-                        <span class="tab-pill">CLASSMATE NOTES</span>
-                        <span class="tab-pill">AFTER CLASS</span>
-                    </div>
+                <div class="collection-tabs">
+                    <?php foreach ($collectionTabCategories as $tabIndex => $tabCategory) : ?>
+                        <button type="button" class="tab-pill <?= $tabIndex === 0 ? 'active' : '' ?>" data-target="collection-panel-<?= html_escape($tabCategory->getID()) ?>"><?= html_escape($tabCategory->cat_name) ?></button>
+                    <?php endforeach ?>
+                </div>
 
-                    <div class="row hot-product-list">
-                        <?php $hotProducts = $product->showHotProducts(html_escape($category->getID())) ;
-                        foreach ($hotProducts as $hotProduct) :
-                        ?>
-                        <div class="col-lg-2 col-sm-4 col-6 card card-product">
-                            <a href="detail_product.php?id=<?= $hotProduct->getID() ?>" class="product_a">
-                                <img src="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>" class="card-img-top" alt="...">
-                                <div class="card-title-wrap">
-                                    <h6 class="card-title"><?= html_escape($hotProduct->pd_name) ?></h6>
+                <?php foreach ($collectionTabCategories as $tabIndex => $tabCategory) : ?>
+                    <?php
+                    $tabProducts = $product->showHotProducts($tabCategory->getID());
+                    if (empty($tabProducts)) {
+                        $tabProducts = array_slice($allProducts, 0, 4);
+                    }
+                    $tabProducts = array_slice($tabProducts, 0, 4);
+                    ?>
+                    <div class="collection-panel <?= $tabIndex === 0 ? 'active' : '' ?>" id="collection-panel-<?= html_escape($tabCategory->getID()) ?>">
+                        <div class="row hot-product-list home-product-grid">
+                            <?php foreach ($tabProducts as $hotProduct) : ?>
+                            <div
+                                class="col-xl-3 col-lg-3 col-md-4 col-6 home-product-card"
+                                data-product-id="<?= $hotProduct->getID() ?>"
+                                data-product-name="<?= html_escape($hotProduct->pd_name) ?>"
+                                data-product-price="<?= number_format(html_escape($hotProduct->pd_price)) . '₫' ?>"
+                                data-product-image="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>"
+                                data-product-link="detail_product.php?id=<?= $hotProduct->getID() ?>"
+                            >
+                                <div class="home-product-media">
+                                    <button type="button" class="favorite-btn" aria-label="Thêm vào yêu thích">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                    <a href="detail_product.php?id=<?= $hotProduct->getID() ?>" class="product_a">
+                                        <img src="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>" class="home-product-image" alt="...">
+                                    </a>
+                                    <div class="home-hover-actions">
+                                        <button type="button" class="home-action-btn">Thêm vào giỏ</button>
+                                        <button
+                                            type="button"
+                                            class="home-action-btn quick-view-trigger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#homeQuickViewModal"
+                                            data-name="<?= html_escape($hotProduct->pd_name) ?>"
+                                            data-price="<?= number_format(html_escape($hotProduct->pd_price)) . '₫' ?>"
+                                            data-image="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>"
+                                            data-link="detail_product.php?id=<?= $hotProduct->getID() ?>"
+                                        >Xem nhanh</button>
+                                    </div>
                                 </div>
-                            </a>
-                            <p class="card-text price-product"><?= number_format(html_escape($hotProduct->pd_price)) . '₫'?></p>
-                            <?php if(isset($_SESSION['role']) && $_SESSION['role']=='user' && isset($_SESSION['name']) && isset($_SESSION['id'])){
-                            $id = $_SESSION['id'];
-                            echo'
-                            <form action="cart_add.php" method="post">
-                                <input type="hidden" name="idsanpham" value="'.$hotProduct->getID().'">
-                                <input type="hidden" name="iduser" value="'.$_SESSION['id'].'">
-                                <button class="btn-add_cart w-100" name="themgiohang">Thêm vào giỏ hàng</button>
-                            </form>
-                            ';
-                            }
-                            else echo '<button class="btn-add_cart w-100" disabled>Thêm vào giỏ hàng</button>';
-                            ?>
+                                <a href="detail_product.php?id=<?= $hotProduct->getID() ?>" class="product_a">
+                                    <div class="card-title-wrap">
+                                        <h6 class="home-product-title"><?= html_escape($hotProduct->pd_name) ?></h6>
+                                    </div>
+                                </a>
+                                <p class="home-product-price"><?= number_format(html_escape($hotProduct->pd_price)) . '₫'?></p>
+                            </div>
+                            <?php endforeach ?>
                         </div>
-                        <?php endforeach ?>
+                        <div class="text-center">
+                            <a href="product.php?catID=<?=html_escape($tabCategory->getID())?>">
+                                <button class="btn-all_product">
+                                    Xem tất cả sản phẩm <b><?= html_escape($tabCategory->cat_name) ?></b>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </a>
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <a href="product.php?catID=<?=html_escape($category->getID())?>">
-                            <button class="btn-all_product">
-                                Xem tất cả sản phẩm <b><?= html_escape($category->cat_name) ?></b>
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </button>
-                        </a>
-                    </div>
-                </section>
-            <?php endforeach ?>
+                <?php endforeach ?>
+            </section>
+
+            <section class="container-fluid category-hot favorite-section" id="favoriteSection" hidden>
+                <div class="section-head">
+                    <h2 class="title">SẢN PHẨM YÊU THÍCH</h2>
+                    <p class="section-divider">___ /// ___</p>
+                </div>
+                <div class="row hot-product-list home-product-grid" id="favoriteList"></div>
+            </section>
 
             <section class="container-fluid category-hot">
                 <div class="section-head">
@@ -190,7 +250,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                     <p class="section-divider">___ /// ___</p>
                 </div>
                 <div class="row g-3 news-row">
-                    <div class="col-md-4">
+                    <div class="col-lg-3 col-md-6">
                         <article class="news-card">
                             <img src="./images/banner-3.jpg" alt="Tin tuc 1">
                             <div class="news-content">
@@ -200,7 +260,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                             </div>
                         </article>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-lg-3 col-md-6">
                         <article class="news-card">
                             <img src="./images/banner-4.jpg" alt="Tin tuc 2">
                             <div class="news-content">
@@ -228,6 +288,192 @@ include_once __DIR__ .'/../src/partials/header.php'
 
         </div>
     </div>
+
+    <div class="modal fade" id="homeQuickViewModal" tabindex="-1" aria-labelledby="homeQuickViewTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content quickview-modal-content">
+                <div class="modal-body quickview-modal-body">
+                    <button type="button" class="btn-close quickview-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="row g-4 align-items-start">
+                        <div class="col-lg-5">
+                            <img id="quickViewImage" src="" alt="Quick view" class="quickview-image">
+                        </div>
+                        <div class="col-lg-7">
+                            <h3 id="homeQuickViewTitle" class="quickview-title"></h3>
+                            <p class="quickview-sku">SKU: SBL25041323 Hết hàng</p>
+                            <p id="quickViewPrice" class="quickview-price"></p>
+                            <p class="quickview-color">Màu sắc: Trắng</p>
+                            <a id="quickViewDetailLink" class="quickview-detail-link" href="#">Xem chi tiết »</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var modal = document.getElementById('homeQuickViewModal');
+            var favoriteStorageKey = 'morning_favorites';
+
+            function readFavorites() {
+                try {
+                    var raw = localStorage.getItem(favoriteStorageKey);
+                    return raw ? JSON.parse(raw) : {};
+                } catch (e) {
+                    return {};
+                }
+            }
+
+            function writeFavorites(data) {
+                localStorage.setItem(favoriteStorageKey, JSON.stringify(data));
+            }
+
+            function setHeartVisual(button, active) {
+                if (!button) {
+                    return;
+                }
+                var icon = button.querySelector('i');
+                button.classList.toggle('is-active', active);
+                button.setAttribute('aria-pressed', active ? 'true' : 'false');
+                if (icon) {
+                    icon.className = active ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+                }
+            }
+
+            function renderFavoriteList() {
+                var section = document.getElementById('favoriteSection');
+                var list = document.getElementById('favoriteList');
+                if (!section || !list) {
+                    return;
+                }
+
+                var favorites = readFavorites();
+                var items = Object.values(favorites);
+                if (!items.length) {
+                    section.hidden = true;
+                    list.innerHTML = '';
+                    return;
+                }
+
+                section.hidden = false;
+                list.innerHTML = items.map(function(item) {
+                    return '\n<div class="col-xl-3 col-lg-3 col-md-4 col-6">'
+                        + '<a href="' + item.link + '" class="product_a">'
+                        + '<div class="home-product-media"><img src="' + item.image + '" class="home-product-image" alt="' + item.name + '"></div>'
+                        + '<div class="card-title-wrap"><h6 class="home-product-title">' + item.name + '</h6></div>'
+                        + '</a>'
+                        + '<p class="home-product-price">' + item.price + '</p>'
+                        + '</div>';
+                }).join('');
+            }
+
+            function initFavorites() {
+                var favorites = readFavorites();
+                document.querySelectorAll('.home-product-card').forEach(function(card) {
+                    var id = card.getAttribute('data-product-id');
+                    var button = card.querySelector('.favorite-btn');
+                    if (!id || !button) {
+                        return;
+                    }
+
+                    setHeartVisual(button, Boolean(favorites[id]));
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        var currentFavorites = readFavorites();
+                        if (currentFavorites[id]) {
+                            delete currentFavorites[id];
+                            writeFavorites(currentFavorites);
+                            setHeartVisual(button, false);
+                        } else {
+                            currentFavorites[id] = {
+                                id: id,
+                                name: card.getAttribute('data-product-name') || '',
+                                price: card.getAttribute('data-product-price') || '',
+                                image: card.getAttribute('data-product-image') || '',
+                                link: card.getAttribute('data-product-link') || '#'
+                            };
+                            writeFavorites(currentFavorites);
+                            setHeartVisual(button, true);
+                        }
+
+                        var finalFavorites = readFavorites();
+                        document.querySelectorAll('.home-product-card[data-product-id="' + id + '"] .favorite-btn').forEach(function(syncBtn) {
+                            setHeartVisual(syncBtn, Boolean(finalFavorites[id]));
+                        });
+                        renderFavoriteList();
+                    });
+                });
+
+                renderFavoriteList();
+            }
+
+            function initCollectionTabs() {
+                var tabButtons = document.querySelectorAll('.collection-tabs .tab-pill');
+                var panels = document.querySelectorAll('.collection-panel');
+
+                if (!tabButtons.length || !panels.length) {
+                    return;
+                }
+
+                tabButtons.forEach(function(tabBtn) {
+                    tabBtn.addEventListener('click', function() {
+                        var targetId = tabBtn.getAttribute('data-target');
+                        if (!targetId) {
+                            return;
+                        }
+
+                        tabButtons.forEach(function(btn) {
+                            btn.classList.remove('active');
+                        });
+
+                        panels.forEach(function(panel) {
+                            panel.classList.remove('active');
+                        });
+
+                        tabBtn.classList.add('active');
+                        var targetPanel = document.getElementById(targetId);
+                        if (targetPanel) {
+                            targetPanel.classList.add('active');
+                        }
+                    });
+                });
+            }
+
+            if (!modal) {
+                initFavorites();
+                initCollectionTabs();
+                return;
+            }
+
+            modal.addEventListener('show.bs.modal', function(event) {
+                var trigger = event.relatedTarget;
+                if (!trigger) {
+                    return;
+                }
+
+                var name = trigger.getAttribute('data-name') || '';
+                var price = trigger.getAttribute('data-price') || '';
+                var image = trigger.getAttribute('data-image') || '';
+                var link = trigger.getAttribute('data-link') || '#';
+
+                var titleEl = modal.querySelector('#homeQuickViewTitle');
+                var priceEl = modal.querySelector('#quickViewPrice');
+                var imageEl = modal.querySelector('#quickViewImage');
+                var linkEl = modal.querySelector('#quickViewDetailLink');
+
+                if (titleEl) titleEl.textContent = name;
+                if (priceEl) priceEl.textContent = price;
+                if (imageEl) imageEl.src = image;
+                if (linkEl) linkEl.href = link;
+            });
+
+            initFavorites();
+            initCollectionTabs();
+        })();
+    </script>
 
     <?php include_once __DIR__ .'/../src/partials/footer.php'?>
     
