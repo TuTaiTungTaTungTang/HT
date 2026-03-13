@@ -29,7 +29,7 @@ include_once __DIR__ .'/../src/partials/header.php'
     <?php include_once __DIR__ .'/../src/partials/navbar.php'?>
 
 
-    <div class="container">
+    <div class="container auth-page">
 
         <?php
             $subtitle = 'ĐĂNG NHẬP';
@@ -38,7 +38,7 @@ include_once __DIR__ .'/../src/partials/header.php'
 
         <div class="row">
             <div class="col-12">
-                <form action="login.php" method="post" class="col-md-6 offset-md-3">
+                <form action="login.php" method="post" class="col-md-6 offset-md-3 auth-card">
 
                      <div class="form-group log-form-group">
                         <label for="email">Email: </label>

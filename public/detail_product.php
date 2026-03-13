@@ -21,8 +21,8 @@ include_once __DIR__ . '/../src/partials/header.php'
     <?php include_once __DIR__ . '/../src/partials/navbar.php' ?>
 
 
-    <div class="container">
-        <div class="row ">
+    <div class="container detail-page">
+        <div class="row product-detail-wrap">
             <!-- Hình ảnh -->
             <div class="col-md-4 my-5">
                 <img class="img_product" src="<?= './uploads/' . html_escape($product->pd_image) ?>" alt="" width="100%">
@@ -32,7 +32,7 @@ include_once __DIR__ . '/../src/partials/header.php'
                 <h3 class="title_product"><?= html_escape($product->pd_name) ?></h3>
 
                 <!-- Tên danh mục sản phẩm -->
-                <p class="my-3"><b>Danh mục:</b> <?=html_escape($category->getNameByID($product->cat_id)) ?></p>
+                <p class="my-3 product-meta"><b>Danh mục:</b> <?=html_escape($category->getNameByID($product->cat_id)) ?></p>
                 
                 <!-- Giá sản phẩm -->
                 <p class="price_product my-4"><?= number_format(html_escape($product->pd_price)) . '₫' ?></p>
@@ -55,7 +55,7 @@ include_once __DIR__ . '/../src/partials/header.php'
 
                 
                 <!-- Thông tin sản phẩm -->
-                <div class="ms-5 my-4">
+                <div class="my-4 product-info-wrap">
                     <p class="info_product"><?= html_escape($product->pd_info) ?></p>
                 </div>
             </div>
@@ -67,16 +67,6 @@ include_once __DIR__ . '/../src/partials/header.php'
     <?php include_once __DIR__ . '/../src/partials/footer.php' ?>
 
     <script>
-        var elementHTML = document.documentElement;
-        var elementFooter = document.getElementsByTagName('footer')[0];
-
-        elementHTML.style.position = "relative";
-        elementHTML.style.minHeight = "100%";
-        elementFooter.style.position = "absolute";
-        elementFooter.style.bottom = "0";
-        elementFooter.style.width = "100%";
-
-
         $(document).ready(function() {
             $('.increment_btn').click(function(e) {
                 e.preventDefault();

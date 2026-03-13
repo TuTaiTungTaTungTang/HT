@@ -32,14 +32,14 @@ include_once __DIR__ . '/../src/partials/header.php'
     <?php include_once __DIR__ . '/../src/partials/navbar.php' ?>
 
 
-    <div class="container">
+    <div class="container catalog-page">
         <?php
         $subtitle = (isset($_GET['catID'])) ? html_escape($category->getNameByID($_GET['catID'])) : 'TẤT CẢ MẶT HÀNG';
         include_once __DIR__ . '/../src/partials/heading.php';
         ?>
         <div class="row">
-            <div class="col-lg-2 col-md-4 my-3 pb-3 sidebar_category" style="height: 100%;">
-                <h3 style="border-bottom: 2px solid #CCC; padding-bottom: 10px;">Danh mục thời trang</h3>
+            <div class="col-lg-2 col-md-4 my-3 pb-3 sidebar_category">
+                <h3 class="sidebar_title">Danh mục thời trang</h3>
                 <ul class="category">
                     <li class="category_item">
                         <a href="product.php" class="category_link">Tất cả mặt hàng</a>
@@ -72,7 +72,7 @@ include_once __DIR__ . '/../src/partials/header.php'
                             <form action="cart_add.php" method="post">
                                 <input type="hidden" name="idsanpham" value="'.$product->getID().'">
                                 <input type="hidden" name="iduser" value="'.$_SESSION['id'].'">
-                                <button class="btn-add_cart" name = "themgiohang" style="width:100%;">Thêm vào giỏ hàng</button>
+                                <button class="btn-add_cart w-100" name="themgiohang">Thêm vào giỏ hàng</button>
                             </form>
                             ';
                             }

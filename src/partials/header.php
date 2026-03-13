@@ -9,6 +9,10 @@
     <link rel="icon" type="image/x-icon" href="./images/favicon.png">
     <title>Morning Fashion</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Font-Icons -->
     <script src="https://kit.fontawesome.com/30d0976aea.js" crossorigin="anonymous"></script>
     <!-- Bootstrap -->

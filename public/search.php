@@ -5,8 +5,11 @@ use CT27502\Project\Product;
 
 $product = new Product($PDO);
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $keyword = trim($_GET['keyword']);
+$keyword = '';
+$products = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['keyword'])) {
+    $keyword = trim((string) $_GET['keyword']);
     $products = $product->search($keyword);
 }
 
@@ -27,11 +30,13 @@ include_once __DIR__ . '/../src/partials/header.php'
         ?>
 
         <div>
-            <!-- Không tìm thấy sản phẩm -->
-            <?php if ($products === false) { ?>
+            <?php if ($keyword === '') { ?>
+                <p class="mt-3 mb-5">Vui lòng nhập từ khóa để tìm kiếm sản phẩm.</p>
+
+            <?php } elseif ($products === false) { ?>
                 <p class="mt-3 mb-5">Không tìm thấy sản phẩm nào với từ khóa <b>"<?= html_escape($keyword) ?>"</b>!</p>
 
-            <?php } else { ?> <!-- Tìm thấy sản phẩm -->
+            <?php } else { ?>
                 <p class="mt-3 mb-5">Kết quả tìm kiếm sản phẩm với từ khóa <b>"<?= html_escape($keyword) ?>"</b>:</p>
             <?php } ?>
         </div>
@@ -55,11 +60,11 @@ include_once __DIR__ . '/../src/partials/header.php'
                             <form action="cart_add.php" method="post">
                                 <input type="hidden" name="idsanpham" value="'.$product->getID().'">
                                 <input type="hidden" name="iduser" value="'.$_SESSION['id'].'">
-                                <button class="btn-add_cart" name = "themgiohang" style="width:100%;">Thêm vào giỏ hàng</button>
+                                <button class="btn-add_cart w-100" name="themgiohang">Thêm vào giỏ hàng</button>
                             </form>
                             ';
                             }
-                            else echo '<button class="btn-add_cart" disabled>Thêm vào giỏ hàng</button>';
+                            else echo '<button class="btn-add_cart w-100" disabled>Thêm vào giỏ hàng</button>';
                             ?>
                     </div>
             <?php

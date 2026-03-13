@@ -49,11 +49,12 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
 
     ?>
 
-    <div class="container ">
+    <div class="container cart-page">
 
-        <div class="row">
-            <div class="col-md-6 offset-md-3 text-center">
-                <h1 class="mt-5 mb-4 fw-bold">GIỎ HÀNG</h1>
+        <div class="row page-heading-wrap">
+            <div class="col-12 text-center">
+                <h1 class="page-heading-title">GIỎ HÀNG</h1>
+                <p class="section-divider">___ /// ___</p>
             </div>
         </div>
 
@@ -67,7 +68,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
             <div class="col-12">
 
                 <!-- Table Starts Here -->
-                <table id="contacts" class="table table-striped table-bordered">
+                <table id="contacts" class="table table-striped table-bordered cart-table">
                     <thead>
                         <tr class="text-center">
                             <th scope="col"></th>
@@ -87,18 +88,18 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                         ?>
                             <tr class="text-center align-middle">
                                 <td>
-                                    <img src="<?= './uploads/' . html_escape($item->pd_image) ?>" alt="" width="100px" height="100px" style="border-radius:8px;">
+                                    <img src="<?= './uploads/' . html_escape($item->pd_image) ?>" alt="" width="100" height="100" class="cart-thumb">
                                 </td>
                                 <td><?= html_escape($item->pd_name) ?></td>
                                 <td>
 
                                     <!-- Số lượng sản phẩm -->
-                                    <div class="d-flex justify-content-center me-5">
-                                        <button class="input-group-text btn btn-success decrement_btn fs-4 fw-bold" style="margin-right: 10px;">–</button>
+                                    <div class="d-flex justify-content-center me-5 cart-qty-wrap">
+                                        <button class="input-group-text btn btn-success decrement_btn fs-4 fw-bold">–</button>
                                         <input type="hidden" class="id-user" value="<?= $item->getIDUser() ?>">
                                         <input type="hidden" class="id-pd" value="<?= $item->getIDPro() ?>">
-                                        <input type="number" min="1" max="20" disabled name="quantity" class="pd_qty text-center" value="<?= number_format(html_escape($item->pd_quantity)) ?>" style="width: 50px;">
-                                        <button class="input-group-text btn btn-success increment_btn fs-4 fw-bold" style="margin-left: 10px;">+</button>
+                                        <input type="number" min="1" max="20" disabled name="quantity" class="pd_qty text-center" value="<?= number_format(html_escape($item->pd_quantity)) ?>">
+                                        <button class="input-group-text btn btn-success increment_btn fs-4 fw-bold">+</button>
                                     </div>
 
                                 </td>
