@@ -6,8 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid header_wrap secodee-navbar">
-            <a class="navbar-brand brand-word" href="/onlinestore/public/index.php">secodee</a>
-
+            <a class="navbar-brand brand-word" href="/onlinestore/public/index.php" aria-label="Morning">
+                <span class="logo-text">m</span>
+                <span class="logo-fruit" aria-hidden="true"></span>
+                <span class="logo-text">rning</span>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false"
                 aria-label="Toggle navigation">
@@ -16,12 +19,16 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 secodee-menu">
-                    <li class="nav-item mx-4">
+                    <li class="nav-item mx-4 dropdown">
                         <?php
                         if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
                             echo '<a class="nav-link active" aria-current="page" href="category_list.php">QUẢN LÝ DANH MỤC</a>';
                         } else {
-                            echo '<a class="nav-link active dropdown-toggle" aria-current="page" href="/onlinestore/public/index.php">THÔNG TIN CHUNG</a>';
+                            echo '<a class="nav-link active dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">THÔNG TIN CHUNG</a>
+                                <ul class="dropdown-menu fs-5 text">
+                                    <li><a class="dropdown-item" href="/onlinestore/public/gioi_thieu.php">Giới thiệu</a></li>
+                                    <li><a class="dropdown-item" href="/onlinestore/public/su_kien.php">Sự kiện</a></li>
+                                </ul>';
                         }
                         ?>
                     </li>

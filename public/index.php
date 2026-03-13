@@ -18,23 +18,17 @@ include_once __DIR__ .'/../src/partials/header.php'
     
     <?php include_once __DIR__ .'/../src/partials/navbar.php'?>
 
-    <div class="slider container pb-0">
+    <div class="slider container-fluid px-0 pb-0">
         <div id="carouselExampleInterval" class="carousel slide hero-card" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active" data-bs-interval="3200">
-                    <img src="./images/banner-thoi-trang.jpg" class="d-block w-100 img-carousel" alt="Summer collection">
+                    <img src="./images/banner1.jpg" class="d-block w-100 img-carousel" alt="Summer collection">
                 </div>
                 <div class="carousel-item" data-bs-interval="3200">
-                    <img src="./images/banner-thoi-trang-dep.jpg" class="d-block w-100 img-carousel" alt="Elegant style">
+                    <img src="./images/banner2.png" class="d-block w-100 img-carousel" alt="New arrivals">
                 </div>
                 <div class="carousel-item" data-bs-interval="3200">
-                    <img src="./images/banner-thoi-trang-thu-hut.jpg" class="d-block w-100 img-carousel" alt="New arrivals">
-                </div>
-                <div class="carousel-item" data-bs-interval="3200">
-                    <img src="./images/banner-thoi-trang-tuoi.jpg" class="d-block w-100 img-carousel" alt="Daily outfit">
-                </div>
-                <div class="carousel-item" data-bs-interval="3200">
-                    <img src="./images/tieu-de-banner-thoi-trang.jpg" class="d-block w-100 img-carousel" alt="Weekend picks">
+                    <img src="./images/banner3.png" class="d-block w-100 img-carousel" alt="Daily outfit">
                 </div>
             </div>
 
@@ -56,13 +50,6 @@ include_once __DIR__ .'/../src/partials/header.php'
             </button>
         </div>
     </div>
-
-    <section class="home-banner-grid container-fluid px-4">
-        <div class="row g-0">
-            <div class="col-md-6"><img src="./images/banner-1.jpg" alt="Spring To Wear"></div>
-            <div class="col-md-6"><img src="./images/banner-2.jpg" alt="Urban Move"></div>
-        </div>
-    </section>
 
     <div class="main-content">
         <div class="container my-4">

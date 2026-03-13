@@ -30,10 +30,40 @@ header {
     text-transform: lowercase;
     letter-spacing: 0.02em;
     margin-right: 2rem;
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.26rem;
 }
 
 .brand-word:hover {
     color: #111;
+}
+
+.logo-text {
+    display: inline-block;
+    line-height: 0.9;
+}
+
+.logo-fruit {
+    width: 0.86em;
+    height: 0.84em;
+    border-radius: 50%;
+    background: #000;
+    position: relative;
+    display: inline-block;
+    transform: translateY(0.04em);
+}
+
+.logo-fruit::before {
+    content: "";
+    position: absolute;
+    width: 0.36em;
+    height: 0.18em;
+    border-radius: 100% 0;
+    background: #000;
+    top: -0.12em;
+    left: 0.4em;
+    transform: rotate(-34deg);
 }
 
 .navbar-nav.secodee-menu {
@@ -205,13 +235,17 @@ li.nav-item.mx-4 {
 }
 
 .slider {
-    max-width: 1620px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .hero-card {
     border-radius: 0;
     overflow: hidden;
+    width: 100%;
 }
 
 .img-carousel {
@@ -281,6 +315,89 @@ li.nav-item.mx-4 {
     font-size: clamp(1.7rem, 2.2vw, 2.4rem);
     font-weight: 800;
     color: #111;
+}
+
+.info-page {
+    max-width: 1280px;
+    margin: 0 auto 2rem;
+}
+
+.info-breadcrumb {
+    font-size: 1.35rem;
+    color: #4e4e4e;
+    padding: 0.8rem 0;
+}
+
+.info-breadcrumb a {
+    color: #333;
+}
+
+.info-card {
+    background: #fff;
+    border: 1px solid #d8d8d8;
+    border-radius: 2px;
+    padding: 1rem;
+}
+
+.info-card h3 {
+    font-family: "Mulish", "Segoe UI", sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 0.8rem;
+}
+
+.info-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    border-top: 1px solid #ececec;
+}
+
+.info-list a {
+    display: block;
+    padding: 0.72rem 0.1rem;
+    color: #222;
+    font-size: 1.45rem;
+}
+
+.info-list a.active,
+.info-list a:hover {
+    color: #000;
+    font-weight: 700;
+}
+
+.info-content {
+    font-size: 1.7rem;
+    line-height: 1.7;
+    color: #1f1f1f;
+}
+
+.info-content h1 {
+    font-family: "Mulish", "Segoe UI", sans-serif;
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.event-item {
+    background: #fff;
+    border: 1px solid #d8d8d8;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.event-item h3 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    font-family: "Mulish", "Segoe UI", sans-serif;
+    font-weight: 700;
+}
+
+.event-date {
+    display: inline-block;
+    font-size: 1.25rem;
+    color: #666;
+    margin-bottom: 0.5rem;
 }
 
 .section-sub {
@@ -515,9 +632,20 @@ footer {
     padding: 3.2rem 0 1.2rem;
 }
 
+.footer-wrap {
+    max-width: 1420px;
+    padding-left: 2.4rem;
+    padding-right: 2.4rem;
+}
+
+.footer-wrap > .row {
+    --bs-gutter-x: 2.8rem;
+    --bs-gutter-y: 1.5rem;
+}
+
 .footer-title {
     font-family: "Mulish", "Segoe UI", sans-serif;
-    font-size: 1.9rem;
+    font-size: 2rem;
     font-weight: 700;
     margin-bottom: 0.9rem;
     text-transform: none;
@@ -528,7 +656,7 @@ footer {
     content: "";
     display: block;
     margin-top: 0.5rem;
-    width: 7.2rem;
+    width: 5.2rem;
     height: 1px;
     background: #111;
 }
@@ -560,7 +688,7 @@ footer {
     background: #e8e8e8;
     border: 1px solid #d7d7d7;
     padding: 1rem;
-    min-height: 140px;
+    min-height: 118px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -573,16 +701,16 @@ footer {
 }
 
 .sn-icon {
-    width: 3.4rem;
-    height: 3.4rem;
+    width: 2.1rem;
+    height: 2.1rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     background: #000;
     color: #fff;
     border-radius: 50%;
-    font-size: 1.8rem;
-    margin-right: 0.8rem;
+    font-size: 1.1rem;
+    margin-right: 0.55rem;
 }
 
 .footer-signup {
@@ -596,6 +724,8 @@ footer {
     flex: 1;
     border: 1px solid #bcbcbc;
     background: transparent;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
 }
 
 .footer-signup .btn-all_product {
@@ -603,15 +733,37 @@ footer {
     background: #000;
     color: #fff;
     border-color: #000;
+    font-size: 0.95rem;
+    padding: 0.5rem 1.4rem;
 }
 
 .footer-bottom {
     margin-top: 2rem;
     border-top: 1px solid #d3d3d3;
     padding-top: 0.9rem;
-    font-size: 1.25rem;
+    font-size: 1rem;
     color: #444;
-    text-align: center;
+    text-align: left;
+    gap: 1.2rem;
+}
+
+.payment-list {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
+.payment-list span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.6rem;
+    padding: 0 0.45rem;
+    border: 1px solid #cfcfcf;
+    font-size: 0.82rem;
+    color: #4b4b4b;
+    background: #fff;
 }
 
 .backtop {
@@ -956,5 +1108,15 @@ span.red {
 
     .footer-signup {
         flex-direction: column;
+    }
+
+    .footer-wrap {
+        padding-left: 1.2rem;
+        padding-right: 1.2rem;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start !important;
     }
 }

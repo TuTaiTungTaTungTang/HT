@@ -1,14 +1,22 @@
 <footer>
-    <div class="container">
+    <div class="container-fluid footer-wrap">
         <div class="row g-4">
             <div class="col-lg-3 col-md-6">
-                <h3 class="footer-title">Secodee</h3>
+                <h3 class="footer-title"> <a class="navbar-brand brand-word" href="/onlinestore/public/index.php" aria-label="Morning">
+                <span class="logo-text">m</span>
+                <span class="logo-fruit" aria-hidden="true"></span>
+                <span class="logo-text">rning</span>
+            </a></h3>
                 <p class="footer-text">
-                    <i class="fa-solid fa-location-dot"></i> 51/17 Giải Phóng, phường Tân Sơn Nhất, TP.HCM<br>
-                    <i class="fa-solid fa-phone"></i> 0356686741<br>
-                    <i class="fa-regular fa-envelope"></i> secodee.recruitment@gmail.com
-                </p>
-                <p class="footer-text mt-3 mb-0">HỘ KINH DOANH PHẠM THỊ DUNG<br>Website thuộc quyền sở hữu của bà Phạm Thị Dung</p>
+    <i class="fa-solid fa-location-dot"></i> Đại học Cần Thơ, Khu II, đường 3/2, phường Xuân Khánh, quận Ninh Kiều, TP. Cần Thơ<br>
+    <i class="fa-solid fa-phone"></i> 0939554486<br>
+    <i class="fa-regular fa-envelope"></i> morningfashion@gmail.com
+</p>
+
+<p class="footer-text mt-3 mb-0">
+    HỘ KINH DOANH HUỲNH QUÃNG ANH THƯ<br>
+    Website thuộc quyền sở hữu của bà Huỳnh Quãng Anh Thư
+</p>
             </div>
 
             <div class="col-lg-3 col-md-6">
@@ -41,8 +49,14 @@
             </div>
         </div>
 
-        <div class="footer-bottom">
-            &copy; Copyright 2026 by Secodee style demo on Morning Fashion.
+        <div class="footer-bottom d-flex justify-content-between align-items-center">
+            <span>&copy; 2026 Morning Fashion mua sắm theo cách của bạn.</span>
+            <div class="payment-list">
+                <span>VISA</span>
+                <span>PayPal</span>
+                <span>Mastercard</span>
+                <span>Discover</span>
+            </div>
         </div>
     </div>
 </footer>
