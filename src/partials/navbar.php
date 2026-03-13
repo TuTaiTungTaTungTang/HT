@@ -62,7 +62,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
                         echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="product.php">ƯU ĐÃI</a></li>';
                         echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="register.php">TUYỂN DỤNG</a></li>';
-                        echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="login.php">LIÊN HỆ</a></li>';
+                        echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="/onlinestore/public/lien_he.php">LIÊN HỆ</a></li>';
                     }
                     ?>
 
