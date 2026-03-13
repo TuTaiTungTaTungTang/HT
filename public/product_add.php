@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 
 require_once __DIR__ . '/../src/bootstrap.php';
@@ -52,7 +52,7 @@ include_once __DIR__ . '/../src/partials/header.php'
 
     <div class="container mb-4">
         <?php
-        $subtitle = 'THÊM SẢN PHẨM';
+        $subtitle = 'THA?M SẢN PHẨM';
         include_once __DIR__ . '/../src/partials/heading.php';
         ?>
 
@@ -166,3 +166,4 @@ include_once __DIR__ . '/../src/partials/header.php'
 </body>
 
 </html>
+

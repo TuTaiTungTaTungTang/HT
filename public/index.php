@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../src/bootstrap.php';
 
 use CT27502\Project\Product;
@@ -21,19 +21,19 @@ include_once __DIR__ .'/../src/partials/header.php'
         <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active" data-bs-interval="3000">
-                    <img src="./images/banner-1.jpg" class="d-block w-100 img-carousel" alt="...">
+                    <img src="./images/banner-thoi-trang.jpg" class="d-block w-100 img-carousel" alt="...">
                 </div>
                 <div class="carousel-item " data-bs-interval="3000">
-                    <img src="./images/banner-2.jpg" class="d-block w-100 img-carousel" alt="...">
+                    <img src="./images/banner-thoi-trang-dep.jpg" class="d-block w-100 img-carousel" alt="...">
                 </div>
                 <div class="carousel-item" data-bs-interval="3000">
-                    <img src="./images/banner-3.jpg" class="d-block w-100 img-carousel" alt="...">
+                    <img src="./images/banner-thoi-trang-thu-hut.jpg" class="d-block w-100 img-carousel" alt="...">
                 </div>
                 <div class="carousel-item" data-bs-interval="3000">
-                    <img src="./images/banner-4.jpg" class="d-block w-100 img-carousel" alt="...">
+                    <img src="./images/banner-thoi-trang-tuoi.jpg" class="d-block w-100 img-carousel" alt="...">
                 </div>
                 <div class="carousel-item" data-bs-interval="3000">
-                    <img src="./images/banner-5.jpg" class="d-block w-100 img-carousel" alt="...">
+                    <img src="./images/tieu-de-banner-thoi-trang.jpg" class="d-block w-100 img-carousel" alt="...">
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"
@@ -102,3 +102,4 @@ include_once __DIR__ .'/../src/partials/header.php'
 </body>
 
 </html>
+

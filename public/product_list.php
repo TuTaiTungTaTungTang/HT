@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 
 require_once __DIR__ . '/../src/bootstrap.php';
@@ -142,3 +142,4 @@ include_once __DIR__ . '/../src/partials/header.php'
 </body>
 
 </html>
+

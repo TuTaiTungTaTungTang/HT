@@ -1,4 +1,4 @@
-<?php 
+﻿<?php 
 require_once __DIR__ .'/../src/bootstrap.php';
 
 use CT27502\Project\Profile;
@@ -76,3 +76,4 @@ include_once __DIR__ .'/../src/partials/header.php'
 </body>
     
 </html>
+

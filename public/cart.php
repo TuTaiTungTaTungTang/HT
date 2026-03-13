@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once __DIR__ . '/../src/bootstrap.php';
 if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
@@ -280,3 +280,4 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
 </body>
 
 </html>
+

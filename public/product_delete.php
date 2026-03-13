@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 
 require_once __DIR__ . '/../src/bootstrap.php';
@@ -19,3 +19,4 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id']) && ($product->fi
 $_SESSION['flash_message'] = 'Xóa sản phẩm thành công';
 
 redirect('product_list.php');
+

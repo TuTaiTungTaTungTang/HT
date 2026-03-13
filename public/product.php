@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../src/bootstrap.php';
 
 use CT27502\Project\Product;
@@ -15,7 +15,7 @@ $categories = $category->all();
 $limit = (isset($_GET['limit']) && is_numeric($_GET['limit'])) ? (int)$_GET['limit'] : 12;
 $page = (isset($_GET['page']) && is_numeric($_GET['page'])) ? (int)$_GET['page'] : 1;
 $paginator = new Paginator(
-    totalRecords: (isset($_GET['catID'])) ? $product->count($_GET['catID']) : $product->count(-1), //Nếu tồn tại catID thì gọi hàm đếm số lượng sp với tham số là catID, ngược lại tham số là -1
+    totalRecords: (isset($_GET['catID'])) ? $product->count($_GET['catID']) : $product->count(-1), // Nếu tồn tại catID thì gọi hàm đếm số lượng sản phẩm với tham số là catID, ngược lại tham số là -1
     recordsPerPage: $limit,
     currentPage: $page
 );
@@ -34,15 +34,15 @@ include_once __DIR__ . '/../src/partials/header.php'
 
     <div class="container">
         <?php
-        $subtitle = (isset($_GET['catID'])) ? html_escape($category->getNameByID($_GET['catID'])) : 'TẤT CẢ SẢN PHẨM';
+        $subtitle = (isset($_GET['catID'])) ? html_escape($category->getNameByID($_GET['catID'])) : 'TẤT CẢ MẶT HÀNG';
         include_once __DIR__ . '/../src/partials/heading.php';
         ?>
         <div class="row">
             <div class="col-lg-2 col-md-4 my-3 pb-3 sidebar_category" style="height: 100%;">
-                <h3 style="border-bottom: 2px solid #CCC; padding-bottom: 10px;">Danh mục sản phẩm</h3>
+                <h3 style="border-bottom: 2px solid #CCC; padding-bottom: 10px;">Danh mục thời trang</h3>
                 <ul class="category">
                     <li class="category_item">
-                        <a href="product.php" class="category_link">Tất cả sản phẩm</a>
+                        <a href="product.php" class="category_link">Tất cả mặt hàng</a>
                     </li>
                     <?php
                     foreach ($categories as $category) :
@@ -115,3 +115,4 @@ include_once __DIR__ . '/../src/partials/header.php'
 </body>
 
 </html>
+

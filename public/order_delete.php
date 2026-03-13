@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 
 require_once __DIR__ . '/../src/bootstrap.php';
@@ -22,3 +22,4 @@ if (
     redirect('order_list.php');
 }
 redirect('/');
+
