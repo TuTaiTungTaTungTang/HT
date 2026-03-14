@@ -175,6 +175,15 @@ include_once __DIR__ .'/../src/partials/header.php'
                 </div>
             </section>
 
+            <section class="container-fluid bst-middle-strip">
+                <div class="row g-0">
+                    <div class="col-6 col-lg-3"><img src="./images/bst1.png" alt="Bo suu tap 1"></div>
+                    <div class="col-6 col-lg-3"><img src="./images/bst2.png" alt="Bo suu tap 2"></div>
+                    <div class="col-6 col-lg-3"><img src="./images/bst3.png" alt="Bo suu tap 3"></div>
+                    <div class="col-6 col-lg-3"><img src="./images/bst4.png" alt="Bo suu tap 4"></div>
+                </div>
+            </section>
+
             <section class="container-fluid category-hot" id="bo-suu-tap">
                 <div class="section-head">
                     <h2 class="title">BỘ SƯU TẬP</h2>
@@ -235,14 +244,14 @@ include_once __DIR__ .'/../src/partials/header.php'
                             </div>
                             <?php endforeach ?>
                         </div>
-                        <div class="text-center">
+                        <!-- <div class="text-center">
                             <a href="product.php?catID=<?=html_escape($tabCategory->getID())?>">
                                 <button class="btn-all_product">
                                     Xem tất cả sản phẩm <b><?= html_escape($tabCategory->cat_name) ?></b>
                                     <i class="fa-solid fa-chevron-right"></i>
                                 </button>
                             </a>
-                        </div>
+                        </div> -->
                     </div>
                 <?php endforeach ?>
             </section>
@@ -263,7 +272,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                 <div class="row g-3 news-row">
                     <div class="col-lg-3 col-md-6">
                         <article class="news-card">
-                            <img src="./images/banner-3.jpg" alt="Tin tuc 1">
+                            <img src="./images/new1.jpg" alt="Tin tuc 1">
                             <div class="news-content">
                                 <h3>CHẬM LẠI THEO NHỊP THỞ ĐẦU THU</h3>
                                 <span class="news-date">14/09/2025</span>
@@ -273,7 +282,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <article class="news-card">
-                            <img src="./images/banner-4.jpg" alt="Tin tuc 2">
+                            <img src="./images/new2.jpg" alt="Tin tuc 2">
                             <div class="news-content">
                                 <h3>AFTER CLASS | TÌM KIẾM NGUỒN CẢM HỨNG</h3>
                                 <span class="news-date">31/08/2025</span>
@@ -285,15 +294,11 @@ include_once __DIR__ .'/../src/partials/header.php'
             </section>
 
             <section class="container-fluid category-hot insta-strip">
-                <div class="section-head">
-                    <h2 class="title">@ FOLLOW US ON INSTAGRAM</h2>
-                </div>
                 <div class="row g-0">
-                    <div class="col-6 col-md"><img src="./images/banner-1.jpg" alt="Instagram 1"></div>
-                    <div class="col-6 col-md"><img src="./images/banner-2.jpg" alt="Instagram 2"></div>
-                    <div class="col-6 col-md"><img src="./images/banner-3.jpg" alt="Instagram 3"></div>
-                    <div class="col-6 col-md"><img src="./images/banner-4.jpg" alt="Instagram 4"></div>
-                    <div class="col-6 col-md"><img src="./images/banner-5.jpg" alt="Instagram 5"></div>
+                    <div class="col-6 col-lg-3"><img src="./images/bst1.png" alt="Bo suu tap 1"></div>
+                    <div class="col-6 col-lg-3"><img src="./images/bst2.png" alt="Bo suu tap 2"></div>
+                    <div class="col-6 col-lg-3"><img src="./images/bst3.png" alt="Bo suu tap 3"></div>
+                    <div class="col-6 col-lg-3"><img src="./images/bst4.png" alt="Bo suu tap 4"></div>
                 </div>
             </section>
 

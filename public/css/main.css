@@ -315,6 +315,51 @@ li.nav-item.mx-4 {
     transform: scale(1.08);
 }
 
+.bst-middle-strip {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.bst-middle-strip .row > div {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.bst-middle-strip .row > div::after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 55%);
+    opacity: 0;
+    transition: opacity 0.28s ease;
+    pointer-events: none;
+}
+
+.bst-middle-strip img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.45s ease, filter 0.45s ease;
+}
+
+.bst-middle-strip .row > div:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.14);
+}
+
+.bst-middle-strip .row > div:hover::after {
+    opacity: 1;
+}
+
+.bst-middle-strip .row > div:hover img {
+    transform: scale(1.09);
+    filter: saturate(1.04) contrast(1.03);
+}
+
 .section-head {
     text-align: center;
     margin-bottom: 1.5rem;
@@ -942,6 +987,12 @@ li.nav-item.mx-4 {
     width: 100%;
     aspect-ratio: 360/250;
     object-fit: cover;
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.news-card:hover img {
+    filter: brightness(0.62);
+    transform: scale(1.01);
 }
 
 .news-card .news-content {
@@ -975,7 +1026,7 @@ li.nav-item.mx-4 {
 }
 
 .insta-strip {
-    margin-top: 3.4rem;
+    margin-top: 2.2rem;
 }
 
 .insta-strip .title {
@@ -1006,6 +1057,7 @@ li.nav-item.mx-4 {
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
+    display: block;
 }
 
 footer {
@@ -1791,6 +1843,16 @@ span.red {
     .home-banner-pair img {
         width: 100%;
         height: auto;
+    }
+
+    .bst-middle-strip {
+        margin-top: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .bst-middle-strip img {
+        height: auto;
+        object-fit: contain;
     }
 
     .home-hover-actions {
