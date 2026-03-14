@@ -162,10 +162,14 @@ class Product
     }
 
     // Đếm số lượng sản phẩm
-    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null, array $keywords = []): int
+    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null, array $keywords = [], bool $isNew = false): int
     {
         $sql = 'SELECT count(*) FROM products WHERE 1=1';
         $params = [];
+
+        if ($isNew) {
+            $sql .= ' AND is_new = 1';
+        }
 
         if ($cat_id !== -1) {
             $sql .= ' AND cat_id = :cat_id';
@@ -205,7 +209,8 @@ class Product
         string $sort = 'newest',
         ?float $minPrice = null,
         ?float $maxPrice = null,
-        array $keywords = []
+        array $keywords = [],
+        bool $isNew = false
     ): array
     {
         $products = [];
@@ -218,6 +223,10 @@ class Product
         };
 
         $sql = "SELECT * FROM products WHERE 1=1";
+
+        if ($isNew) {
+            $sql .= ' AND is_new = 1';
+        }
 
         if ($cat_id !== -1) {
             $sql .= ' AND cat_id = :cat_id';

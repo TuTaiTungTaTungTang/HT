@@ -33,10 +33,11 @@ $priceMax = $priceKey !== '' ? $priceRangeMap[$priceKey][1] : null;
 
 $selectedCategory = $currentCollection['categoryId'] ?? -1;
 $keywordTerms = $currentCollection['keywords'] ?? [];
+$isNewOnly = !empty($currentCollection['isNew']);
 $sizeOptions = ['XS', 'M', 'L', 'Freezie'];
 $pageTitle = $currentCollection['title'];
 
-$totalRecords = $productModel->count($selectedCategory, $priceMin, $priceMax, $keywordTerms);
+$totalRecords = $productModel->count($selectedCategory, $priceMin, $priceMax, $keywordTerms, $isNewOnly);
 $paginator = new Paginator(
     totalRecords: $totalRecords,
     recordsPerPage: $limit,
@@ -50,7 +51,8 @@ $products = $productModel->paginate(
     $sort,
     $priceMin,
     $priceMax,
-    $keywordTerms
+    $keywordTerms,
+    $isNewOnly
 );
 $pages = $paginator->getPages(length: 3);
 
@@ -108,7 +110,8 @@ include_once __DIR__ . '/header.php'
                                     $sidebarCollection['categoryId'] ?? -1,
                                     null,
                                     null,
-                                    $sidebarCollection['keywords'] ?? []
+                                    $sidebarCollection['keywords'] ?? [],
+                                    !empty($sidebarCollection['isNew'])
                                 );
                                 $isActiveCollection = $sidebarSlug === $collectionSlug;
                                 $collectionLink = $sidebarCollection['path'];
