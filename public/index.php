@@ -74,7 +74,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                     foreach ($promoProducts as $promoProduct) :
                     ?>
                     <div
-                        class="col-xl-3 col-lg-3 col-md-4 col-6 home-product-card"
+                        class="col-xl-2 col-lg-3 col-md-4 col-6 home-product-card"
                         data-product-id="<?= $promoProduct->getID() ?>"
                         data-product-name="<?= html_escape($promoProduct->pd_name) ?>"
                         data-product-price="<?= number_format(html_escape($promoProduct->pd_price)) . '₫' ?>"
@@ -113,6 +113,17 @@ include_once __DIR__ .'/../src/partials/header.php'
                 </div>
             </section>
 
+            <section class="container-fluid home-banner-grid home-banner-pair">
+                <div class="row g-0">
+                    <div class="col-md-6">
+                        <img src="./images/home_1.png" alt="Home banner 1">
+                    </div>
+                    <div class="col-md-6">
+                        <img src="./images/home_2.png" alt="Home banner 2">
+                    </div>
+                </div>
+            </section>
+
             <section class="container-fluid category-hot">
                 <div class="section-head">
                     <h2 class="title">SẢN PHẨM BÁN CHẠY</h2>
@@ -125,7 +136,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                     foreach ($bestSellerProducts as $bestProduct) :
                     ?>
                     <div
-                        class="col-xl-3 col-lg-3 col-md-4 col-6 home-product-card"
+                        class="col-xl-2 col-lg-3 col-md-4 col-6 home-product-card"
                         data-product-id="<?= $bestProduct->getID() ?>"
                         data-product-name="<?= html_escape($bestProduct->pd_name) ?>"
                         data-product-price="<?= number_format(html_escape($bestProduct->pd_price)) . '₫' ?>"
@@ -187,7 +198,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                         <div class="row hot-product-list home-product-grid">
                             <?php foreach ($tabProducts as $hotProduct) : ?>
                             <div
-                                class="col-xl-3 col-lg-3 col-md-4 col-6 home-product-card"
+                                class="col-xl-2 col-lg-3 col-md-4 col-6 home-product-card"
                                 data-product-id="<?= $hotProduct->getID() ?>"
                                 data-product-name="<?= html_escape($hotProduct->pd_name) ?>"
                                 data-product-price="<?= number_format(html_escape($hotProduct->pd_price)) . '₫' ?>"
