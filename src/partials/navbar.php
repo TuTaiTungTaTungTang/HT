@@ -38,13 +38,14 @@ if (session_status() === PHP_SESSION_NONE) {
                         if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
                             echo '<a class="nav-link active" aria-current="page" href="product_list.php">QUẢN LÝ MẶT HÀNG</a>';
                         } else {
-                            $navCategoryObj = new CT27502\Project\Category($PDO);
-                            $navCategories = $navCategoryObj->all();
+                            $collectionDefinitions = require __DIR__ . '/../collection_definitions.php';
                             echo '<div class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">SẢN PHẨM</div>';
                             echo '<ul class="dropdown-menu fs-5 text">';
-                            echo '<li><a class="dropdown-item" href="/onlinestore/public/product.php">Tất cả sản phẩm</a></li>';
-                            foreach ($navCategories as $navCat) {
-                                echo '<li><a class="dropdown-item" href="/onlinestore/public/product.php?catID=' . (int)$navCat->getID() . '">' . htmlspecialchars($navCat->cat_name, ENT_QUOTES, 'UTF-8') . '</a></li>';
+                            foreach ($collectionDefinitions as $collectionDefinition) {
+                                if (empty($collectionDefinition['showInSidebar'])) {
+                                    continue;
+                                }
+                                echo '<li><a class="dropdown-item" href="' . htmlspecialchars($collectionDefinition['path'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($collectionDefinition['title'], ENT_QUOTES, 'UTF-8') . '</a></li>';
                             }
                             echo '</ul>';
                         }

@@ -1307,11 +1307,10 @@ footer {
 .catalog-sidebar {
     border: 1px solid #d8d8d8;
     background: #fff;
-    padding: 0.95rem 0.85rem 0.2rem;
+    padding: 0.95rem 1.15rem 0.55rem;
     position: sticky;
     top: 80px;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
+    overflow: visible;
 }
 
 .catalog-filter-group {
@@ -1371,6 +1370,24 @@ footer {
     border-top: 1px solid #ececec;
 }
 
+.collection-list-scroll {
+    max-height: 35rem;
+    overflow-y: auto;
+    padding-right: 0.45rem;
+}
+
+.collection-list-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.collection-list-scroll::-webkit-scrollbar-track {
+    background: #f2f2f2;
+}
+
+.collection-list-scroll::-webkit-scrollbar-thumb {
+    background: #111;
+}
+
 .catalog-filter-list.compact {
     border-top: 0;
 }
@@ -1385,15 +1402,15 @@ footer {
     justify-content: space-between;
     align-items: center;
     gap: 0.8rem;
-    padding: 0.38rem 0;
-    font-size: 1.35rem;
+    padding: 0.52rem 0.1rem;
+    font-size: 1.28rem;
     cursor: pointer;
 }
 
 .filter-option .left-part {
     display: inline-flex;
     align-items: center;
-    gap: 0.62rem;
+    gap: 0.78rem;
 }
 
 .filter-option .left-part > span {
@@ -1434,24 +1451,56 @@ footer {
 
 .filter-option .count {
     color: #888;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
+    min-width: 3.8rem;
+    text-align: right;
 }
 
 .filter-option.active .left-part > span {
     color: #111;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .filter-option:hover .left-part > span {
     color: #111;
-    font-weight: 700;
+    font-weight: 600;
+}
+
+.collection-option-link {
+    text-decoration: none;
+}
+
+.collection-check {
+    width: 1.45rem;
+    height: 1.45rem;
+    min-width: 1.45rem;
+    border: 1px solid #b8b8b8;
+    background: #fff;
+    position: relative;
+    flex-shrink: 0;
+    border-radius: 0.2rem;
+}
+
+.collection-check.checked {
+    border-color: #111;
+}
+
+.collection-check.checked::before {
+    content: "\2714";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.95rem;
+    line-height: 1;
+    color: #111;
 }
 
 .catalog-main-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 3rem;
     gap: 1rem;
 }
 

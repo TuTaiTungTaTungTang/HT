@@ -162,7 +162,7 @@ class Product
     }
 
     // Đếm số lượng sản phẩm
-    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null): int
+    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null, array $keywords = []): int
     {
         $sql = 'SELECT count(*) FROM products WHERE 1=1';
         $params = [];
@@ -182,6 +182,16 @@ class Product
             $params[':max_price'] = $maxPrice;
         }
 
+        if (!empty($keywords)) {
+            $searchParts = [];
+            foreach (array_values($keywords) as $index => $keyword) {
+                $termKey = ':keyword_' . $index;
+                $searchParts[] = "(pd_name LIKE $termKey OR pd_info LIKE $termKey)";
+                $params[$termKey] = '%' . $keyword . '%';
+            }
+            $sql .= ' AND (' . implode(' OR ', $searchParts) . ')';
+        }
+
         $statement = $this->db->prepare($sql);
         $statement->execute($params);
         return $statement->fetchColumn();
@@ -194,7 +204,8 @@ class Product
         int $cat_id = -1,
         string $sort = 'newest',
         ?float $minPrice = null,
-        ?float $maxPrice = null
+        ?float $maxPrice = null,
+        array $keywords = []
     ): array
     {
         $products = [];
@@ -220,6 +231,15 @@ class Product
             $sql .= ' AND pd_price <= :max_price';
         }
 
+        if (!empty($keywords)) {
+            $searchParts = [];
+            foreach (array_values($keywords) as $index => $keyword) {
+                $termKey = ':keyword_' . $index;
+                $searchParts[] = "(pd_name LIKE $termKey OR pd_info LIKE $termKey)";
+            }
+            $sql .= ' AND (' . implode(' OR ', $searchParts) . ')';
+        }
+
         $sql .= " ORDER BY $orderBy LIMIT :offset, :limit";
         $statement = $this->db->prepare($sql);
 
@@ -233,6 +253,12 @@ class Product
 
         if ($maxPrice !== null) {
             $statement->bindValue(':max_price', $maxPrice);
+        }
+
+        if (!empty($keywords)) {
+            foreach (array_values($keywords) as $index => $keyword) {
+                $statement->bindValue(':keyword_' . $index, '%' . $keyword . '%');
+            }
         }
 
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);

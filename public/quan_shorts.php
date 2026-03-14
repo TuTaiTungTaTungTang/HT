@@ -1,3 +1,3 @@
 <?php
-$collectionSlug = 'tat-ca-san-pham';
+$collectionSlug = 'quan-shorts';
 include_once __DIR__ . '/../src/partials/collection_page.php';
