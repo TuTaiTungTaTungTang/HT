@@ -89,15 +89,17 @@ include_once __DIR__ .'/../src/partials/header.php'
                                 <img src="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>" class="home-product-image" alt="...">
                             </a>
                             <div class="home-hover-actions">
-                                <button type="button" class="home-action-btn">Thêm vào giỏ</button>
+                                <button type="button" class="home-action-btn quick-add-btn">Thêm vào giỏ</button>
                                 <button
                                     type="button"
                                     class="home-action-btn quick-view-trigger"
                                     data-bs-toggle="modal"
                                     data-bs-target="#homeQuickViewModal"
+                                    data-id="<?= $promoProduct->getID() ?>"
                                     data-name="<?= html_escape($promoProduct->pd_name) ?>"
                                     data-price="<?= number_format(html_escape($promoProduct->pd_price)) . '₫' ?>"
                                     data-image="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>"
+                                    data-sizes="<?= html_escape($promoProduct->pd_sizes ?? '') ?>"
                                     data-link="detail_product.php?id=<?= $promoProduct->getID() ?>"
                                 >Xem nhanh</button>
                             </div>
@@ -151,15 +153,17 @@ include_once __DIR__ .'/../src/partials/header.php'
                                 <img src="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>" class="home-product-image" alt="...">
                             </a>
                             <div class="home-hover-actions">
-                                <button type="button" class="home-action-btn">Thêm vào giỏ</button>
+                                <button type="button" class="home-action-btn quick-add-btn">Thêm vào giỏ</button>
                                 <button
                                     type="button"
                                     class="home-action-btn quick-view-trigger"
                                     data-bs-toggle="modal"
                                     data-bs-target="#homeQuickViewModal"
+                                    data-id="<?= $bestProduct->getID() ?>"
                                     data-name="<?= html_escape($bestProduct->pd_name) ?>"
                                     data-price="<?= number_format(html_escape($bestProduct->pd_price)) . '₫' ?>"
                                     data-image="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>"
+                                    data-sizes="<?= html_escape($bestProduct->pd_sizes ?? '') ?>"
                                     data-link="detail_product.php?id=<?= $bestProduct->getID() ?>"
                                 >Xem nhanh</button>
                             </div>
@@ -222,15 +226,17 @@ include_once __DIR__ .'/../src/partials/header.php'
                                         <img src="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>" class="home-product-image" alt="...">
                                     </a>
                                     <div class="home-hover-actions">
-                                        <button type="button" class="home-action-btn">Thêm vào giỏ</button>
+                                        <button type="button" class="home-action-btn quick-add-btn">Thêm vào giỏ</button>
                                         <button
                                             type="button"
                                             class="home-action-btn quick-view-trigger"
                                             data-bs-toggle="modal"
                                             data-bs-target="#homeQuickViewModal"
+                                            data-id="<?= $hotProduct->getID() ?>"
                                             data-name="<?= html_escape($hotProduct->pd_name) ?>"
                                             data-price="<?= number_format(html_escape($hotProduct->pd_price)) . '₫' ?>"
                                             data-image="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>"
+                                            data-sizes="<?= html_escape($hotProduct->pd_sizes ?? '') ?>"
                                             data-link="detail_product.php?id=<?= $hotProduct->getID() ?>"
                                         >Xem nhanh</button>
                                     </div>
@@ -306,16 +312,64 @@ include_once __DIR__ .'/../src/partials/header.php'
             <div class="modal-content quickview-modal-content">
                 <div class="modal-body quickview-modal-body">
                     <button type="button" class="btn-close quickview-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    <div class="row g-4 align-items-start">
-                        <div class="col-lg-5">
+                    <div class="row g-4 align-items-start quickview-layout">
+                        <div class="col-lg-6">
                             <img id="quickViewImage" src="" alt="Quick view" class="quickview-image">
                         </div>
-                        <div class="col-lg-7">
+                        <div class="col-lg-6 quickview-info-col">
                             <h3 id="homeQuickViewTitle" class="quickview-title"></h3>
-                            <p class="quickview-sku">SKU: SBL25041323 Hết hàng</p>
+                            <p class="quickview-sku">SKU: <span id="quickViewSku">-</span> <span id="quickViewStatusText">Còn hàng</span></p>
                             <p id="quickViewPrice" class="quickview-price"></p>
-                            <p class="quickview-color">Màu sắc: Trắng</p>
+                            <div class="quickview-size-wrap">
+                                <p class="quickview-color">Kích thước: <span id="quickViewSelectedSize">-</span></p>
+                                <div id="quickViewSizeOptions" class="quickview-size-options"></div>
+                            </div>
+
+                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'user' && isset($_SESSION['id'])) : ?>
+                                <form id="quickViewCartForm" method="post" action="cart_add.php">
+                                    <input type="hidden" name="idsanpham" id="quickViewProductId" value="">
+                                    <input type="hidden" name="iduser" value="<?= (int) $_SESSION['id'] ?>">
+                                    <input type="hidden" name="pd_size" id="quickViewSizeInput" value="">
+
+                                    <div class="quickview-qty-row">
+                                        <button type="button" class="quickview-qty-btn" id="quickViewMinus" aria-label="Giảm">&#8722;</button>
+                                        <input type="number" id="quickViewQty" class="quickview-qty-input" name="quantity" min="1" max="99" value="1" readonly>
+                                        <button type="button" class="quickview-qty-btn" id="quickViewPlus" aria-label="Tăng">&#43;</button>
+                                        <button type="submit" name="themgiohang" id="quickViewSubmit" class="quickview-buy-btn">Thêm vào giỏ</button>
+                                    </div>
+                                </form>
+                            <?php else : ?>
+                                <div class="quickview-qty-row">
+                                    <button type="button" class="quickview-qty-btn" disabled>&#8722;</button>
+                                    <input type="number" class="quickview-qty-input" value="1" readonly disabled>
+                                    <button type="button" class="quickview-qty-btn" disabled>&#43;</button>
+                                    <a href="/onlinestore/public/login.php" class="quickview-buy-btn is-link">Đăng nhập để mua</a>
+                                </div>
+                            <?php endif ?>
+
                             <a id="quickViewDetailLink" class="quickview-detail-link" href="#">Xem chi tiết »</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addCartSuccessModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered add-cart-success-dialog">
+            <div class="modal-content add-cart-success-content">
+                <div class="modal-body add-cart-success-body">
+                    <button type="button" class="btn-close add-cart-success-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="add-cart-success-check">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <p class="add-cart-success-title">Thêm vào giỏ thành công</p>
+                    <div class="add-cart-success-product">
+                        <span id="addCartSuccessQty" class="add-cart-success-qty">1</span>
+                        <img id="addCartSuccessImage" src="" alt="Sản phẩm" class="add-cart-success-image">
+                        <div>
+                            <p id="addCartSuccessName" class="add-cart-success-name"></p>
+                            <p id="addCartSuccessPrice" class="add-cart-success-price"></p>
                         </div>
                     </div>
                 </div>
@@ -326,7 +380,11 @@ include_once __DIR__ .'/../src/partials/header.php'
     <script>
         (function() {
             var modal = document.getElementById('homeQuickViewModal');
+            var successModalEl = document.getElementById('addCartSuccessModal');
+            var successModal = successModalEl && window.bootstrap ? new bootstrap.Modal(successModalEl) : null;
             var favoriteStorageKey = 'morning_favorites';
+            var isUserLoggedIn = <?= (isset($_SESSION['role']) && $_SESSION['role'] === 'user' && isset($_SESSION['id'])) ? 'true' : 'false' ?>;
+            var currentUserId = <?= isset($_SESSION['id']) ? (int) $_SESSION['id'] : 0 ?>;
 
             function readFavorites() {
                 try {
@@ -426,6 +484,176 @@ include_once __DIR__ .'/../src/partials/header.php'
                 });
             }
 
+            async function quickAddToCart(productId, quantity) {
+                var data = new URLSearchParams();
+                data.set('themgiohang', '1');
+                data.set('idsanpham', String(productId));
+                data.set('iduser', String(currentUserId));
+                data.set('quantity', String(quantity || 1));
+
+                var response = await fetch('/onlinestore/public/cart_add.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: data.toString()
+                });
+
+                var text = await response.text();
+                return text.trim() === 'success';
+            }
+
+            function showAddCartSuccess(payload) {
+                if (!successModalEl || !successModal) {
+                    return;
+                }
+
+                var qtyEl = successModalEl.querySelector('#addCartSuccessQty');
+                var imgEl = successModalEl.querySelector('#addCartSuccessImage');
+                var nameEl = successModalEl.querySelector('#addCartSuccessName');
+                var priceEl = successModalEl.querySelector('#addCartSuccessPrice');
+
+                if (qtyEl) qtyEl.textContent = String(payload.quantity || 1);
+                if (imgEl) imgEl.src = payload.image || '';
+                if (nameEl) nameEl.textContent = payload.name || '';
+                if (priceEl) priceEl.textContent = payload.priceText || '';
+
+                successModal.show();
+            }
+
+            function updateMiniCart(payload) {
+                var badge = document.querySelector('.cart-count-badge');
+                if (badge) {
+                    var curr = parseInt(badge.textContent || '0', 10);
+                    badge.textContent = String(curr + (payload.quantity || 1));
+                }
+
+                var miniCartList = document.getElementById('miniCartList');
+                if (!miniCartList) {
+                    return payload.quantity || 1;
+                }
+
+                var id = payload.id || '';
+                var name = payload.name || '';
+                var image = payload.image || '';
+                var price = parseInt(String(payload.price || 0), 10);
+                var quantity = payload.quantity || 1;
+                var finalQty = quantity;
+
+                var existed = miniCartList.querySelector('.mini-cart-item[data-pd-id="' + id + '"]');
+                if (existed) {
+                    var qtyInput = existed.querySelector('.mini-cart-qty');
+                    var linePriceEl = existed.querySelector('.mini-cart-line-price');
+                    if (qtyInput) {
+                        finalQty = parseInt(qtyInput.value || '1', 10) + quantity;
+                        qtyInput.value = String(finalQty);
+                    }
+                    if (linePriceEl) {
+                        linePriceEl.textContent = (price * finalQty).toLocaleString('vi-VN') + '₫';
+                    }
+                } else {
+                    var empty = miniCartList.querySelector('#miniCartEmpty');
+                    if (empty) {
+                        empty.remove();
+                    }
+
+                    var item = document.createElement('div');
+                    item.className = 'mini-cart-item';
+                    item.setAttribute('data-pd-id', id || '');
+                    item.setAttribute('data-price', String(price));
+                    item.innerHTML = '' +
+                        '<img src="' + image + '" alt="' + name.replace(/"/g, '&quot;') + '" class="mini-cart-thumb">' +
+                        '<div class="mini-cart-info">' +
+                            '<p class="mini-cart-name">' + name + '</p>' +
+                            '<div class="mini-cart-qty-wrap">' +
+                                '<button type="button" class="mini-cart-qty-btn decrement">&#8722;</button>' +
+                                '<input type="number" class="mini-cart-qty" value="' + quantity + '" min="1" max="99" readonly>' +
+                                '<button type="button" class="mini-cart-qty-btn increment">&#43;</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="mini-cart-right">' +
+                            '<button type="button" class="mini-cart-remove" aria-label="Xóa">&times;</button>' +
+                            '<p class="mini-cart-line-price">' + (price * quantity).toLocaleString('vi-VN') + '₫</p>' +
+                        '</div>';
+                    miniCartList.insertBefore(item, miniCartList.firstChild);
+                }
+
+                var totalEl = document.getElementById('miniCartTotal');
+                if (totalEl) {
+                    var currTotal = parseInt((totalEl.textContent || '0').replace(/[^\d]/g, ''), 10);
+                    totalEl.textContent = (currTotal + price * quantity).toLocaleString('vi-VN') + '₫';
+                }
+
+                return finalQty;
+            }
+
+            function initQuickAddButtons() {
+                document.querySelectorAll('.quick-add-btn').forEach(function(button) {
+                    button.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        if (!isUserLoggedIn) {
+                            window.location.href = '/onlinestore/public/login.php';
+                            return;
+                        }
+
+                        var card = button.closest('.home-product-card');
+                        if (!card) {
+                            return;
+                        }
+
+                        var productId = card.getAttribute('data-product-id');
+                        if (!productId) {
+                            return;
+                        }
+
+                        button.disabled = true;
+                        var oldText = button.textContent;
+                        button.textContent = 'Đang thêm...';
+
+                        try {
+                            var ok = await quickAddToCart(productId, 1);
+                            if (ok) {
+                                var rawPrice = (card.getAttribute('data-product-price') || '').replace(/[^\d]/g, '');
+                                var payload = {
+                                    id: productId,
+                                    name: card.getAttribute('data-product-name') || '',
+                                    image: card.getAttribute('data-product-image') || '',
+                                    price: parseInt(rawPrice || '0', 10),
+                                    priceText: card.getAttribute('data-product-price') || '',
+                                    quantity: 1
+                                };
+                                var finalQty = updateMiniCart(payload);
+                                showAddCartSuccess({
+                                    name: payload.name,
+                                    image: payload.image,
+                                    priceText: payload.priceText,
+                                    quantity: finalQty
+                                });
+                                button.textContent = 'Đã thêm';
+                                setTimeout(function() {
+                                    button.textContent = oldText;
+                                }, 900);
+                            } else {
+                                button.textContent = 'Lỗi thêm giỏ';
+                                setTimeout(function() {
+                                    button.textContent = oldText;
+                                }, 900);
+                            }
+                        } catch (err) {
+                            button.textContent = 'Lỗi thêm giỏ';
+                            setTimeout(function() {
+                                button.textContent = oldText;
+                            }, 900);
+                        } finally {
+                            button.disabled = false;
+                        }
+                    });
+                });
+            }
+
             if (!modal) {
                 initFavorites();
                 initCollectionTabs();
@@ -438,24 +666,167 @@ include_once __DIR__ .'/../src/partials/header.php'
                     return;
                 }
 
+                var productId = trigger.getAttribute('data-id') || '';
                 var name = trigger.getAttribute('data-name') || '';
                 var price = trigger.getAttribute('data-price') || '';
                 var image = trigger.getAttribute('data-image') || '';
+                var sizes = trigger.getAttribute('data-sizes') || '';
                 var link = trigger.getAttribute('data-link') || '#';
 
                 var titleEl = modal.querySelector('#homeQuickViewTitle');
                 var priceEl = modal.querySelector('#quickViewPrice');
                 var imageEl = modal.querySelector('#quickViewImage');
                 var linkEl = modal.querySelector('#quickViewDetailLink');
+                var skuEl = modal.querySelector('#quickViewSku');
+                var productIdEl = modal.querySelector('#quickViewProductId');
+                var sizeInputEl = modal.querySelector('#quickViewSizeInput');
+                var selectedSizeEl = modal.querySelector('#quickViewSelectedSize');
+                var sizeOptionsEl = modal.querySelector('#quickViewSizeOptions');
+                var qtyEl = modal.querySelector('#quickViewQty');
 
                 if (titleEl) titleEl.textContent = name;
                 if (priceEl) priceEl.textContent = price;
                 if (imageEl) imageEl.src = image;
                 if (linkEl) linkEl.href = link;
+                if (skuEl) skuEl.textContent = 'SP' + productId;
+                if (productIdEl) productIdEl.value = productId;
+                if (qtyEl) qtyEl.value = 1;
+
+                if (sizeOptionsEl) {
+                    sizeOptionsEl.innerHTML = '';
+                    var parsedSizes = sizes.split(',').map(function(s) {
+                        return s.trim();
+                    }).filter(Boolean);
+
+                    if (!parsedSizes.length) {
+                        parsedSizes = ['Freezie'];
+                    }
+
+                    parsedSizes.forEach(function(size, index) {
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'quickview-size-btn' + (index === 0 ? ' active' : '');
+                        btn.textContent = size;
+                        btn.setAttribute('data-size', size);
+                        sizeOptionsEl.appendChild(btn);
+                    });
+
+                    var firstSize = parsedSizes[0] || '';
+                    if (sizeInputEl) sizeInputEl.value = firstSize;
+                    if (selectedSizeEl) selectedSizeEl.textContent = firstSize || '-';
+                }
             });
+
+            modal.addEventListener('click', function(event) {
+                var target = event.target;
+                var sizeOptionsEl = modal.querySelector('#quickViewSizeOptions');
+                var sizeInputEl = modal.querySelector('#quickViewSizeInput');
+                var selectedSizeEl = modal.querySelector('#quickViewSelectedSize');
+                var qtyEl = modal.querySelector('#quickViewQty');
+
+                if (target && target.classList.contains('quickview-size-btn')) {
+                    var wasActive = target.classList.contains('active');
+                    modal.querySelectorAll('.quickview-size-btn').forEach(function(btn) {
+                        btn.classList.remove('active');
+                    });
+
+                    if (!wasActive) {
+                        target.classList.add('active');
+                        if (sizeInputEl) sizeInputEl.value = target.getAttribute('data-size') || '';
+                        if (selectedSizeEl) selectedSizeEl.textContent = target.getAttribute('data-size') || '-';
+                    } else {
+                        if (sizeInputEl) sizeInputEl.value = '';
+                        if (selectedSizeEl) selectedSizeEl.textContent = '-';
+                    }
+                    return;
+                }
+
+                if (target && target.id === 'quickViewPlus' && qtyEl) {
+                    var current = parseInt(qtyEl.value || '1', 10);
+                    if (current < 99) qtyEl.value = current + 1;
+                    return;
+                }
+
+                if (target && target.id === 'quickViewMinus' && qtyEl) {
+                    var current = parseInt(qtyEl.value || '1', 10);
+                    if (current > 1) qtyEl.value = current - 1;
+                    return;
+                }
+            });
+
+            var quickViewForm = modal.querySelector('#quickViewCartForm');
+            if (quickViewForm) {
+                quickViewForm.addEventListener('submit', async function(e) {
+                    var sizeInputEl = modal.querySelector('#quickViewSizeInput');
+                    if (sizeInputEl && sizeInputEl.value === '') {
+                        e.preventDefault();
+                        window.alert('Vui lòng chọn kích thước trước khi thêm vào giỏ.');
+                        return;
+                    }
+
+                    e.preventDefault();
+                    if (!isUserLoggedIn) {
+                        window.location.href = '/onlinestore/public/login.php';
+                        return;
+                    }
+
+                    var productIdEl = modal.querySelector('#quickViewProductId');
+                    var nameEl = modal.querySelector('#homeQuickViewTitle');
+                    var imageEl = modal.querySelector('#quickViewImage');
+                    var priceEl = modal.querySelector('#quickViewPrice');
+                    var qtyEl = modal.querySelector('#quickViewQty');
+
+                    var productId = productIdEl ? productIdEl.value : '';
+                    var qty = qtyEl ? parseInt(qtyEl.value || '1', 10) : 1;
+                    if (!productId) {
+                        return;
+                    }
+
+                    var submitBtn = quickViewForm.querySelector('#quickViewSubmit');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                    }
+
+                    try {
+                        var ok = await quickAddToCart(productId, qty);
+                        if (ok) {
+                            var priceNum = parseInt((priceEl ? priceEl.textContent : '0').replace(/[^\d]/g, ''), 10) || 0;
+                            var finalQty = updateMiniCart({
+                                id: productId,
+                                name: nameEl ? nameEl.textContent : '',
+                                image: imageEl ? imageEl.src : '',
+                                price: priceNum,
+                                priceText: priceEl ? priceEl.textContent : '',
+                                quantity: qty
+                            });
+
+                            showAddCartSuccess({
+                                name: nameEl ? nameEl.textContent : '',
+                                image: imageEl ? imageEl.src : '',
+                                priceText: priceEl ? priceEl.textContent : '',
+                                quantity: finalQty
+                            });
+
+                            var quickViewInstance = bootstrap.Modal.getInstance(modal);
+                            if (quickViewInstance) {
+                                quickViewInstance.hide();
+                            }
+                        } else {
+                            window.alert('Không thể thêm vào giỏ. Vui lòng thử lại.');
+                        }
+                    } catch (err) {
+                        window.alert('Không thể thêm vào giỏ. Vui lòng thử lại.');
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                        }
+                    }
+                });
+            }
 
             initFavorites();
             initCollectionTabs();
+            initQuickAddButtons();
         })();
     </script>
 

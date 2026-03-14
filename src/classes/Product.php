@@ -341,4 +341,25 @@ class Product
 
         return $products;
     }
+
+    public function relatedProducts(int $categoryId, int $excludeId, int $limit = 10): array
+    {
+        $products = [];
+
+        $statement = $this->db->prepare(
+            'SELECT * FROM products WHERE cat_id = :cat_id AND pd_id <> :exclude_id ORDER BY pd_id DESC LIMIT :limit'
+        );
+        $statement->bindValue(':cat_id', $categoryId, PDO::PARAM_INT);
+        $statement->bindValue(':exclude_id', $excludeId, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->execute();
+
+        while ($row = $statement->fetch()) {
+            $product = new Product($this->db);
+            $product->fillFromDB($row);
+            $products[] = $product;
+        }
+
+        return $products;
+    }
 }

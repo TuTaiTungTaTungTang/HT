@@ -9,11 +9,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['themgiohang']) && iss
     $quantity = isset($_POST['quantity']) && is_numeric($_POST['quantity']) ? max(1, (int)$_POST['quantity']) : 1;
 
     $item->fill($_POST);
+    $result = false;
     if ($item->exist()) {
-        $item->plus($quantity);
+        $result = (bool) $item->plus($quantity);
     } else {
-        $item->save($quantity);
+        $result = (bool) $item->save($quantity);
     }
+
+    $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+        && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+    if ($isAjax) {
+        echo $result ? 'success' : 'unsuccess';
+        exit;
+    }
+
     $id = $_POST['iduser'];
     redirect('cart.php?id='.$id.'');
 }
