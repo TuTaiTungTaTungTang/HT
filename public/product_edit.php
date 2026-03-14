@@ -55,6 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $category = new Category($PDO);
 $categories = $category->all();
+$bstCollectionOptions = [
+    '' => 'Không thuộc BST riêng',
+    'clair-de-spring' => 'CLAIR DE SPRING',
+    'xuan-nhien' => 'XUÂN NHIÊN',
+    'night-out' => 'NIGHT OUT COLLECTION',
+    'city-hours' => 'CITY HOURS',
+    'classmate-notes' => 'CLASSMATE NOTES',
+    'after-class' => 'AFTER CLASS',
+];
 
 include_once __DIR__ . '/../src/partials/header.php'
 ?>
@@ -162,7 +171,19 @@ include_once __DIR__ . '/../src/partials/header.php'
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="pd_collection" class="mt-4 mb-2">Bộ sưu tập BST</label>
+                        <select name="pd_collection" id="pd_collection" class="form-select fs-5">
+                            <?php foreach ($bstCollectionOptions as $collectionCode => $collectionLabel) : ?>
+                                <option value="<?= html_escape($collectionCode) ?>" <?= (($product->pd_collection ?? '') === $collectionCode) ? 'selected' : '' ?>>
+                                    <?= html_escape($collectionLabel) ?>
+                                </option>
+                            <?php endforeach ?>
+                        </select>
+                    </div>
+
                     <!-- Submit -->
+                    <button type="submit" name="submit" class="btn btn-primary fs-4 mt-4 p-3 fw-bold">Cập nhật sản phẩm</button>
                 </form>
 
             </div>

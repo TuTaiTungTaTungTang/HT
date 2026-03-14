@@ -11,6 +11,19 @@ $category = new Category($PDO);
 $categories = $category->all();
 $collectionTabCategories = array_slice($categories, 0, 6);
 
+$bstCollectionDefs = [
+    ['code' => 'clair-de-spring', 'label' => 'CLAIR DE SPRING', 'path' => '/onlinestore/public/clair_de_spring.php'],
+    ['code' => 'xuan-nhien',      'label' => 'XUÂN NHIÊN',       'path' => '/onlinestore/public/xuan_nhien.php'],
+    ['code' => 'night-out',       'label' => 'NIGHT OUT',        'path' => '/onlinestore/public/night_out.php'],
+    ['code' => 'city-hours',      'label' => 'CITY HOURS',       'path' => '/onlinestore/public/city_hours.php'],
+    ['code' => 'classmate-notes', 'label' => 'CLASSMATE NOTES',  'path' => '/onlinestore/public/classmate_notes.php'],
+    ['code' => 'after-class',     'label' => 'AFTER CLASS',      'path' => '/onlinestore/public/after_class.php'],
+];
+$bstTabProducts = [];
+foreach ($bstCollectionDefs as $bstDef) {
+    $bstTabProducts[$bstDef['code']] = $product->getByCollection($bstDef['code'], 4);
+}
+
 
 include_once __DIR__ .'/../src/partials/header.php'
 
@@ -194,22 +207,15 @@ include_once __DIR__ .'/../src/partials/header.php'
                 </div>
 
                 <div class="collection-tabs">
-                    <?php foreach ($collectionTabCategories as $tabIndex => $tabCategory) : ?>
-                        <button type="button" class="tab-pill <?= $tabIndex === 0 ? 'active' : '' ?>" data-target="collection-panel-<?= html_escape($tabCategory->getID()) ?>"><?= html_escape($tabCategory->cat_name) ?></button>
+                    <?php foreach ($bstCollectionDefs as $bstIdx => $bstDef) : ?>
+                        <button type="button" class="tab-pill <?= $bstIdx === 0 ? 'active' : '' ?>" data-target="bst-panel-<?= html_escape($bstDef['code']) ?>"><?= html_escape($bstDef['label']) ?></button>
                     <?php endforeach ?>
                 </div>
 
-                <?php foreach ($collectionTabCategories as $tabIndex => $tabCategory) : ?>
-                    <?php
-                    $tabProducts = $product->showHotProducts($tabCategory->getID());
-                    if (empty($tabProducts)) {
-                        $tabProducts = array_slice($allProducts, 0, 4);
-                    }
-                    $tabProducts = array_slice($tabProducts, 0, 4);
-                    ?>
-                    <div class="collection-panel <?= $tabIndex === 0 ? 'active' : '' ?>" id="collection-panel-<?= html_escape($tabCategory->getID()) ?>">
+                <?php foreach ($bstCollectionDefs as $bstIdx => $bstDef) : ?>
+                    <div class="collection-panel <?= $bstIdx === 0 ? 'active' : '' ?>" id="bst-panel-<?= html_escape($bstDef['code']) ?>">
                         <div class="row hot-product-list home-product-grid">
-                            <?php foreach ($tabProducts as $hotProduct) : ?>
+                            <?php foreach ($bstTabProducts[$bstDef['code']] as $hotProduct) : ?>
                             <div
                                 class="col-xl-2 col-lg-3 col-md-4 col-6 home-product-card"
                                 data-product-id="<?= $hotProduct->getID() ?>"
@@ -223,7 +229,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                                         <i class="fa-regular fa-heart"></i>
                                     </button>
                                     <a href="detail_product.php?id=<?= $hotProduct->getID() ?>" class="product_a">
-                                        <img src="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>" class="home-product-image" alt="...">
+                                        <img src="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>" class="home-product-image" alt="<?= html_escape($hotProduct->pd_name) ?>">
                                     </a>
                                     <div class="home-hover-actions">
                                         <button type="button" class="home-action-btn quick-add-btn">Thêm vào giỏ</button>
@@ -250,14 +256,14 @@ include_once __DIR__ .'/../src/partials/header.php'
                             </div>
                             <?php endforeach ?>
                         </div>
-                        <!-- <div class="text-center">
-                            <a href="product.php?catID=<?=html_escape($tabCategory->getID())?>">
+                        <div class="text-center mt-3">
+                            <a href="<?= html_escape($bstDef['path']) ?>">
                                 <button class="btn-all_product">
-                                    Xem tất cả sản phẩm <b><?= html_escape($tabCategory->cat_name) ?></b>
+                                    Xem toàn bộ <b><?= html_escape($bstDef['label']) ?></b>
                                     <i class="fa-solid fa-chevron-right"></i>
                                 </button>
                             </a>
-                        </div> -->
+                        </div>
                     </div>
                 <?php endforeach ?>
             </section>

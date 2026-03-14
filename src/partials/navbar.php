@@ -7,6 +7,14 @@ $isUserLoggedIn = isset($_SESSION['id']) && isset($_SESSION['role']) && $_SESSIO
 $miniCartItems = [];
 $miniCartTotalQuantity = 0;
 $miniCartTotalAmount = 0;
+$bstMenuItems = [
+    ['label' => 'CLAIR DE SPRING', 'path' => '/onlinestore/public/clair_de_spring.php'],
+    ['label' => 'XUÂN NHIÊN', 'path' => '/onlinestore/public/xuan_nhien.php'],
+    ['label' => 'NIGHT OUT', 'path' => '/onlinestore/public/night_out.php'],
+    ['label' => 'CITY HOURS', 'path' => '/onlinestore/public/city_hours.php'],
+    ['label' => 'CLASSMATE NOTES', 'path' => '/onlinestore/public/classmate_notes.php'],
+    ['label' => 'AFTER CLASS', 'path' => '/onlinestore/public/after_class.php'],
+];
 
 if ($isUserLoggedIn && isset($PDO)) {
     $miniCart = new CT27502\Project\Cart($PDO);
@@ -67,12 +75,17 @@ if ($isUserLoggedIn && isset($PDO)) {
                         ?>
                     </li>
 
-                    <li class="nav-item mx-4">
+                    <li class="nav-item mx-4 dropdown">
                         <?php
                         if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
                             echo '<a class="nav-link active" aria-current="page" href="order_list.php">QUẢN LÝ ĐƠN HÀNG</a>';
                         } else {
-                            echo '<a class="nav-link active" aria-current="page" href="product.php">BST</a>';
+                            echo '<a class="nav-link active dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">BST</a>';
+                            echo '<ul class="dropdown-menu fs-5 text">';
+                            foreach ($bstMenuItems as $bstMenuItem) {
+                                echo '<li><a class="dropdown-item" href="' . htmlspecialchars($bstMenuItem['path'], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($bstMenuItem['label'], ENT_QUOTES, 'UTF-8') . '</a></li>';
+                            }
+                            echo '</ul>';
                         }
                         ?>
                     </li>

@@ -15,6 +15,7 @@ class Product
     public $pd_image;
     public $cat_id;
     public $pd_sizes = '';
+    public $pd_collection = '';
     private array $errors = [];
 
     public function getID(): int
@@ -34,6 +35,7 @@ class Product
         $this->pd_info = $data['pd_info'] ?? '';
         $this->pd_image = $data['pd_image'] ?? '';
         $this->cat_id = $data['cat_id'] ?? '';
+        $this->pd_collection = $data['pd_collection'] ?? '';
         $allowed = ['XS', 'M', 'L', 'Freezie'];
         $sizesRaw = isset($data['pd_sizes']) && is_array($data['pd_sizes']) ? $data['pd_sizes'] : [];
         $this->pd_sizes = implode(',', array_filter($sizesRaw, fn($s) => in_array($s, $allowed, true)));
@@ -93,7 +95,8 @@ class Product
             'pd_info' => $this->pd_info,
             'pd_image' => $this->pd_image,
             'cat_id' => $this->cat_id,
-            'pd_sizes' => $this->pd_sizes
+            'pd_sizes' => $this->pd_sizes,
+            'pd_collection' => $this->pd_collection
         ] = $row;
 
         return $this;
@@ -121,7 +124,7 @@ class Product
         if ($this->pd_id >= 0) {
             $statement = $this->db->prepare('UPDATE products 
                 SET pd_name = :name, pd_price = :price, pd_info = :info, 
-                pd_image = :image, cat_id = :cat_id, pd_sizes = :pd_sizes WHERE pd_id = :pd_id');
+                pd_image = :image, cat_id = :cat_id, pd_sizes = :pd_sizes, pd_collection = :pd_collection WHERE pd_id = :pd_id');
             $result = $statement->execute([
                 'name' => $this->pd_name,
                 'price' => $this->pd_price,
@@ -129,18 +132,20 @@ class Product
                 'image' => $this->pd_image,
                 'cat_id' => $this->cat_id,
                 'pd_sizes' => $this->pd_sizes,
+                'pd_collection' => $this->pd_collection,
                 'pd_id' => $this->pd_id
             ]);
         } else {
-            $statement = $this->db->prepare('INSERT INTO products(pd_name, pd_price, pd_info, pd_image, cat_id, pd_sizes) 
-                VALUES (:name, :price, :info, :image, :cat_id, :pd_sizes)');
+            $statement = $this->db->prepare('INSERT INTO products(pd_name, pd_price, pd_info, pd_image, cat_id, pd_sizes, pd_collection) 
+                VALUES (:name, :price, :info, :image, :cat_id, :pd_sizes, :pd_collection)');
             $result = $statement->execute([
                 'name' => $this->pd_name,
                 'price' => $this->pd_price,
                 'info' => $this->pd_info,
                 'image' => $this->pd_image,
                 'cat_id' => $this->cat_id,
-                'pd_sizes' => $this->pd_sizes
+                'pd_sizes' => $this->pd_sizes,
+                'pd_collection' => $this->pd_collection
             ]);
 
             if ($result) {
@@ -169,7 +174,7 @@ class Product
     }
 
     // Đếm số lượng sản phẩm
-    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null, array $keywords = [], bool $isNew = false, ?string $size = null): int
+    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null, array $keywords = [], bool $isNew = false, ?string $size = null, ?string $collectionCode = null): int
     {
         $sql = 'SELECT count(*) FROM products WHERE 1=1';
         $params = [];
@@ -181,6 +186,11 @@ class Product
         if ($cat_id !== -1) {
             $sql .= ' AND cat_id = :cat_id';
             $params[':cat_id'] = $cat_id;
+        }
+
+        if ($collectionCode !== null && $collectionCode !== '') {
+            $sql .= ' AND pd_collection = :pd_collection';
+            $params[':pd_collection'] = $collectionCode;
         }
 
         if ($size !== null && $size !== '') {
@@ -223,7 +233,8 @@ class Product
         ?float $maxPrice = null,
         array $keywords = [],
         bool $isNew = false,
-        ?string $size = null
+        ?string $size = null,
+        ?string $collectionCode = null
     ): array
     {
         $products = [];
@@ -243,6 +254,10 @@ class Product
 
         if ($cat_id !== -1) {
             $sql .= ' AND cat_id = :cat_id';
+        }
+
+        if ($collectionCode !== null && $collectionCode !== '') {
+            $sql .= ' AND pd_collection = :pd_collection';
         }
 
         if ($size !== null && $size !== '') {
@@ -271,6 +286,10 @@ class Product
 
         if ($cat_id !== -1) {
             $statement->bindValue(':cat_id', $cat_id, PDO::PARAM_INT);
+        }
+
+        if ($collectionCode !== null && $collectionCode !== '') {
+            $statement->bindValue(':pd_collection', $collectionCode);
         }
 
         if ($size !== null && $size !== '') {
@@ -339,6 +358,21 @@ class Product
             $products[] = $product;
         }
 
+        return $products;
+    }
+
+    public function getByCollection(string $collectionCode, int $limit = 4): array
+    {
+        $products = [];
+        $statement = $this->db->prepare('SELECT * FROM products WHERE pd_collection = ? ORDER BY pd_id ASC LIMIT ?');
+        $statement->bindValue(1, $collectionCode);
+        $statement->bindValue(2, $limit, PDO::PARAM_INT);
+        $statement->execute();
+        while ($row = $statement->fetch()) {
+            $p = new Product($this->db);
+            $p->fillFromDB($row);
+            $products[] = $p;
+        }
         return $products;
     }
 
