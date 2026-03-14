@@ -11,8 +11,6 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
 
 <body>
 
-    <?php include_once __DIR__ . '/../src/partials/navbar.php' ?>
-
     <?php
 
     use CT27502\Project\Cart;
@@ -37,6 +35,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
             }
             if ($allSaved && $item->clearByUser((int) $user_id)) {
                 $_SESSION['successful-order-message'] = "Đặt hàng thành công! Quý khách vui lòng kiểm tra email để xem chi tiết đơn hàng";
+                redirect('cart.php');
             }
         }
 
@@ -51,6 +50,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
 
 
     ?>
+
+    <?php include_once __DIR__ . '/../src/partials/navbar.php' ?>
 
     <div class="container cart-page">
 
