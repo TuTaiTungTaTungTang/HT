@@ -28,13 +28,16 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
             $user_id = $_POST['thanhtoan_id_user'];
             $mahang = rand(0, 9999);
             $cartpds = $order->allPdFromCart($user_id);
+            $allSaved = !empty($cartpds);
             foreach ($cartpds as $cartpd) {
                 $order->fill($mahang, $user_id, $cartpd, $_POST);
-                if ($order->save()) {
-                    $item->deleteToAddOrder($user_id, $cartpd);
+                if (!$order->save()) {
+                    $allSaved = false;
                 }
             }
-            $_SESSION['successful-order-message'] = "Đặt hàng thành công! Quý khách vui lòng kiểm tra email để xem chi tiết đơn hàng";
+            if ($allSaved && $item->clearByUser((int) $user_id)) {
+                $_SESSION['successful-order-message'] = "Đặt hàng thành công! Quý khách vui lòng kiểm tra email để xem chi tiết đơn hàng";
+            }
         }
 
         $errors = $item->getValidationErrors();

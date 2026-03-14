@@ -2682,12 +2682,14 @@ a.page-link {
 
 .cart-table th,
 .cart-table td {
-    font-size: 0.95rem;
+    font-size: 1.08rem;
 }
 
 .cart-thumb {
     border-radius: 0.35rem;
     object-fit: cover;
+    width: 132px !important;
+    height: 132px !important;
 }
 
 .cart-qty-wrap {
@@ -2697,17 +2699,34 @@ a.page-link {
 .cart-qty-wrap .decrement_btn,
 .cart-qty-wrap .increment_btn {
     margin: 0;
-    padding: 0.2rem 0.45rem;
-    min-width: 1.9rem;
+    padding: 0.28rem 0.62rem;
+    min-width: 2.3rem;
     border-radius: 0;
     background: #111;
     border-color: #111;
+    font-size: 1.2rem !important;
 }
 
 .cart-qty-wrap .pd_qty {
-    width: 3.2rem;
+    width: 3.8rem;
     border: 1px solid #cfcfcf;
     border-radius: 0;
+    font-size: 1.05rem;
+}
+
+.cart-page .cart-table thead th {
+    font-size: 1.02rem;
+    font-weight: 700;
+}
+
+.cart-page .cart-table tbody td:nth-child(2) {
+    font-weight: 600;
+}
+
+.cart-page .btn[name="thanhtoan"],
+.cart-page input[name="thanhtoan"] {
+    font-size: 1.55rem !important;
+    padding: 0.55rem 1.2rem;
 }
 
 #flash_message {

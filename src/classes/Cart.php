@@ -155,6 +155,12 @@ class Cart
         return $statement->execute([$pd, $user]);
     }
 
+    public function clearByUser(int $userId): bool
+    {
+        $statement = $this->db->prepare('DELETE FROM carts WHERE user_id = ?');
+        return $statement->execute([$userId]);
+    }
+
     public function find(int $iduser, int $idpd): ?Cart
     {
         $statement = $this->db->prepare('select * from carts where user_id = :user and pd_id = :pd');
