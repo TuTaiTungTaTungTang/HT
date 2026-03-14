@@ -75,15 +75,17 @@ include_once __DIR__ .'/../src/partials/header.php'
 
                 <div class="flash-countdown">
                     Kết thúc trong:
-                    <span class="countdown-pill">00</span>
-                    <span class="countdown-pill">00</span>
-                    <span class="countdown-pill">00</span>
-                    <span class="countdown-pill">00</span>
+                    <span class="countdown-pill" id="cd-days">00</span>
+                    <span class="countdown-pill" id="cd-hours">00</span>
+                    <span class="countdown-pill" id="cd-mins">00</span>
+                    <span class="countdown-pill" id="cd-secs">00</span>
                 </div>
 
                 <div class="row hot-product-list home-product-grid">
                     <?php
-                    $promoProducts = array_slice($allProducts, 0, 4);
+                    $promoProducts = $allProducts;
+                    shuffle($promoProducts);
+                    $promoProducts = array_slice($promoProducts, 0, 4);
                     foreach ($promoProducts as $promoProduct) :
                     ?>
                     <div
@@ -457,6 +459,40 @@ include_once __DIR__ .'/../src/partials/header.php'
                 });
 
             }
+
+            // ---- Flash countdown ----
+            (function() {
+                var KEY = 'flash_end_ts';
+                var stored = sessionStorage.getItem(KEY);
+                var endTs;
+                if (stored) {
+                    endTs = parseInt(stored, 10);
+                } else {
+                    // random 3–7 ngày tính từ bây giờ
+                    var days = 3 + Math.floor(Math.random() * 5);
+                    var extraMs = Math.floor(Math.random() * 24 * 3600 * 1000);
+                    endTs = Date.now() + days * 86400000 + extraMs;
+                    sessionStorage.setItem(KEY, endTs);
+                }
+
+                function pad(n) { return String(n).padStart(2, '0'); }
+
+                function tick() {
+                    var diff = endTs - Date.now();
+                    if (diff <= 0) { diff = 0; }
+                    var d = Math.floor(diff / 86400000);
+                    var h = Math.floor((diff % 86400000) / 3600000);
+                    var m = Math.floor((diff % 3600000) / 60000);
+                    var s = Math.floor((diff % 60000) / 1000);
+                    document.getElementById('cd-days').textContent  = pad(d);
+                    document.getElementById('cd-hours').textContent = pad(h);
+                    document.getElementById('cd-mins').textContent  = pad(m);
+                    document.getElementById('cd-secs').textContent  = pad(s);
+                    if (diff > 0) setTimeout(tick, 1000);
+                }
+                tick();
+            })();
+            // ---- End flash countdown ----
 
             function initCollectionTabs() {
                 var tabButtons = document.querySelectorAll('.collection-tabs .tab-pill');
