@@ -10,7 +10,7 @@ $categoryModel = new Category($PDO);
 $categories = $categoryModel->all();
 
 $selectedCategory = (isset($_GET['catID']) && is_numeric($_GET['catID'])) ? (int) $_GET['catID'] : -1;
-$limit = (isset($_GET['limit']) && is_numeric($_GET['limit'])) ? (int) $_GET['limit'] : 12;
+$limit = (isset($_GET['limit']) && is_numeric($_GET['limit'])) ? (int) $_GET['limit'] : 30;
 $page = (isset($_GET['page']) && is_numeric($_GET['page'])) ? (int) $_GET['page'] : 1;
 
 $allowedSort = ['newest', 'name_asc', 'name_desc', 'price_asc', 'price_desc'];
