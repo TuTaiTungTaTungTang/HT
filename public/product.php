@@ -197,13 +197,20 @@ include_once __DIR__ . '/../src/partials/header.php'
                 <div class="row catalog-product-grid">
                     <?php foreach ($products as $product) : ?>
                         <div class="col-xl-3 col-md-4 col-6">
-                            <article class="catalog-card">
+                            <article
+                                class="catalog-card"
+                                data-product-id="<?= $product->getID() ?>"
+                                data-product-name="<?= html_escape($product->pd_name) ?>"
+                                data-product-price="<?= number_format((float) $product->pd_price) ?>d"
+                                data-product-image="<?= './uploads/' . html_escape($product->pd_image) ?>"
+                                data-product-link="detail_product.php?id=<?= $product->getID() ?>"
+                            >
                                 <a href="detail_product.php?id=<?= $product->getID() ?>" class="catalog-card-link">
                                     <div class="catalog-thumb-wrap">
                                         <img src="<?= './uploads/' . html_escape($product->pd_image) ?>" alt="<?= html_escape($product->pd_name) ?>">
-                                        <span class="wishlist-btn" aria-hidden="true">
+                                        <button type="button" class="wishlist-btn" aria-label="Thêm vào yêu thích" aria-pressed="false">
                                             <i class="fa-regular fa-heart"></i>
-                                        </span>
+                                        </button>
                                     </div>
                                     <h3 class="catalog-card-title"><?= html_escape($product->pd_name) ?></h3>
                                     <p class="catalog-card-price"><?= number_format((float) $product->pd_price) ?>d</p>
@@ -246,13 +253,92 @@ include_once __DIR__ . '/../src/partials/header.php'
     <script>
         (function() {
             var filterForm = document.getElementById('catalogFilterForm');
+            var favoriteStorageKey = 'morning_favorites';
+
+            function readFavorites() {
+                try {
+                    var raw = localStorage.getItem(favoriteStorageKey);
+                    return raw ? JSON.parse(raw) : {};
+                } catch (e) {
+                    return {};
+                }
+            }
+
+            function writeFavorites(data) {
+                localStorage.setItem(favoriteStorageKey, JSON.stringify(data));
+                window.dispatchEvent(new Event('favorites:changed'));
+            }
+
+            function setHeartVisual(button, active) {
+                if (!button) {
+                    return;
+                }
+                button.classList.toggle('is-active', active);
+                button.setAttribute('aria-pressed', active ? 'true' : 'false');
+                var icon = button.querySelector('i');
+                if (icon) {
+                    icon.className = active ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+                }
+            }
+
+            function initWishlistButtons() {
+                var favorites = readFavorites();
+                document.querySelectorAll('.catalog-card').forEach(function(card) {
+                    var id = card.getAttribute('data-product-id');
+                    var button = card.querySelector('.wishlist-btn');
+                    if (!id || !button) {
+                        return;
+                    }
+
+                    setHeartVisual(button, Boolean(favorites[id]));
+
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        var currentFavorites = readFavorites();
+                        if (currentFavorites[id]) {
+                            delete currentFavorites[id];
+                        } else {
+                            currentFavorites[id] = {
+                                id: id,
+                                name: card.getAttribute('data-product-name') || '',
+                                price: card.getAttribute('data-product-price') || '',
+                                image: card.getAttribute('data-product-image') || '',
+                                link: card.getAttribute('data-product-link') || '#'
+                            };
+                        }
+
+                        writeFavorites(currentFavorites);
+                        setHeartVisual(button, Boolean(currentFavorites[id]));
+                    });
+                });
+            }
+
             if (!filterForm) {
+                initWishlistButtons();
                 return;
             }
+
+            filterForm.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+                radio.addEventListener('mousedown', function() {
+                    radio.dataset.wasChecked = radio.checked ? 'true' : 'false';
+                });
+
+                radio.addEventListener('click', function(e) {
+                    if (radio.dataset.wasChecked === 'true') {
+                        e.preventDefault();
+                        radio.checked = false;
+                        filterForm.submit();
+                    }
+                });
+            });
 
             filterForm.addEventListener('change', function() {
                 filterForm.submit();
             });
+
+            initWishlistButtons();
         })();
     </script>
 

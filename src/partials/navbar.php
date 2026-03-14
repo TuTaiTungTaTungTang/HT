@@ -112,7 +112,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             ?>
                         </ul>
                     </div>
-                    <a href="#" class="action-link" aria-label="Yêu thích"><i class="fa-regular fa-heart"></i><span class="count-badge">0</span></a>
+                    <a href="/onlinestore/public/favorites.php" class="action-link favorite-nav-link" aria-label="Yêu thích"><i class="fa-regular fa-heart"></i><span class="count-badge favorite-count-badge">0</span></a>
                     <?php
                     if (isset($_SESSION['id']) && isset($_SESSION['role']) && $_SESSION['role'] == 'user') {
                         echo '<a href="cart.php?id=' . (int) $_SESSION['id'] . '" class="action-link" aria-label="Giỏ hàng"><i class="fa-solid fa-cart-shopping"></i><span class="count-badge">0</span></a>';
@@ -142,6 +142,30 @@ if (session_status() === PHP_SESSION_NONE) {
     $(function() {
         var $toggle = $('.search-toggle');
         var $panel = $('#desktopSearchPanel');
+        var favoriteStorageKey = 'morning_favorites';
+
+        function readFavorites() {
+            try {
+                var raw = localStorage.getItem(favoriteStorageKey);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function syncFavoriteBadge() {
+            var favorites = readFavorites();
+            var count = Object.keys(favorites).length;
+            $('.favorite-count-badge').text(count);
+        }
+
+        syncFavoriteBadge();
+        window.addEventListener('favorites:changed', syncFavoriteBadge);
+        window.addEventListener('storage', function(event) {
+            if (!event || event.key === favoriteStorageKey) {
+                syncFavoriteBadge();
+            }
+        });
 
         $toggle.on('click', function(e) {
             e.preventDefault();

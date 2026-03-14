@@ -256,14 +256,6 @@ include_once __DIR__ .'/../src/partials/header.php'
                 <?php endforeach ?>
             </section>
 
-            <section class="container-fluid category-hot favorite-section" id="favoriteSection" hidden>
-                <div class="section-head">
-                    <h2 class="title">SẢN PHẨM YÊU THÍCH</h2>
-                    <p class="section-divider">___ /// ___</p>
-                </div>
-                <div class="row hot-product-list home-product-grid" id="favoriteList"></div>
-            </section>
-
             <section class="container-fluid category-hot">
                 <div class="section-head">
                     <h2 class="title">TIN TỨC MỚI</h2>
@@ -347,6 +339,7 @@ include_once __DIR__ .'/../src/partials/header.php'
 
             function writeFavorites(data) {
                 localStorage.setItem(favoriteStorageKey, JSON.stringify(data));
+                window.dispatchEvent(new Event('favorites:changed'));
             }
 
             function setHeartVisual(button, active) {
@@ -359,33 +352,6 @@ include_once __DIR__ .'/../src/partials/header.php'
                 if (icon) {
                     icon.className = active ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
                 }
-            }
-
-            function renderFavoriteList() {
-                var section = document.getElementById('favoriteSection');
-                var list = document.getElementById('favoriteList');
-                if (!section || !list) {
-                    return;
-                }
-
-                var favorites = readFavorites();
-                var items = Object.values(favorites);
-                if (!items.length) {
-                    section.hidden = true;
-                    list.innerHTML = '';
-                    return;
-                }
-
-                section.hidden = false;
-                list.innerHTML = items.map(function(item) {
-                    return '\n<div class="col-xl-3 col-lg-3 col-md-4 col-6">'
-                        + '<a href="' + item.link + '" class="product_a">'
-                        + '<div class="home-product-media"><img src="' + item.image + '" class="home-product-image" alt="' + item.name + '"></div>'
-                        + '<div class="card-title-wrap"><h6 class="home-product-title">' + item.name + '</h6></div>'
-                        + '</a>'
-                        + '<p class="home-product-price">' + item.price + '</p>'
-                        + '</div>';
-                }).join('');
             }
 
             function initFavorites() {
@@ -423,11 +389,9 @@ include_once __DIR__ .'/../src/partials/header.php'
                         document.querySelectorAll('.home-product-card[data-product-id="' + id + '"] .favorite-btn').forEach(function(syncBtn) {
                             setHeartVisual(syncBtn, Boolean(finalFavorites[id]));
                         });
-                        renderFavoriteList();
                     });
                 });
 
-                renderFavoriteList();
             }
 
             function initCollectionTabs() {

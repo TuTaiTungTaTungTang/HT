@@ -119,7 +119,7 @@ li.nav-item.mx-4 {
 .action-link {
     position: relative;
     color: #161616;
-    font-size: 1.75rem;
+    font-size: 1.9rem;
     line-height: 1;
     background: transparent;
     border: 0;
@@ -137,7 +137,7 @@ li.nav-item.mx-4 {
 
 .nav-icon-dropdown .dropdown-item,
 .nav-icon-dropdown .dropdown-item-text {
-    font-size: 0.95rem;
+    font-size: 1.08rem;
     font-weight: 600;
 }
 
@@ -871,6 +871,44 @@ li.nav-item.mx-4 {
     font-size: 1.05rem;
 }
 
+.favorite-page-wrap {
+    margin-top: 1.2rem;
+    margin-bottom: 2.8rem;
+}
+
+.favorite-page-section {
+    padding-top: 0.4rem;
+}
+
+.favorite-empty {
+    text-align: center;
+    margin: 0.8rem 0 1.6rem;
+    font-size: 1.3rem;
+    color: #555;
+}
+
+.favorite-card {
+    max-width: 330px;
+    margin: 0 auto;
+}
+
+.favorite-remove-btn {
+    width: 100%;
+    margin-top: 0.65rem;
+    border: 1px solid #161616;
+    background: transparent;
+    color: #161616;
+    font-size: 1.02rem;
+    font-weight: 600;
+    padding: 0.46rem 0.7rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.favorite-remove-btn:hover {
+    background: #111;
+    color: #fff;
+}
+
 .card-title {
     margin: 0;
     font-size: 1.15rem;
@@ -1486,6 +1524,21 @@ footer {
     align-items: center;
     justify-content: center;
     font-size: 1.18rem;
+    cursor: pointer;
+    transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.wishlist-btn:hover {
+    color: #000;
+}
+
+.wishlist-btn.is-active {
+    color: #d61717;
+    border-color: #d61717;
+}
+
+.wishlist-btn.is-active i {
+    font-weight: 900;
 }
 
 .catalog-card-title {
