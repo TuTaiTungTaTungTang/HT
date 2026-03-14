@@ -16,6 +16,10 @@ return [
         'keywords' => [],
         'defaultSort' => 'newest',
         'showInSidebar' => true,
+        'banner' => [
+            'mode' => 'image-only',
+            'image' => '/onlinestore/public/images/banner_spmoi.png',
+        ],
     ],
     'dat-truoc' => [
         'title' => 'Đặt trước',

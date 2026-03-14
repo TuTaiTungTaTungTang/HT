@@ -75,6 +75,24 @@ include_once __DIR__ . '/header.php'
             <a href="/onlinestore/public/index.php">Trang chủ</a> / <?= html_escape($pageTitle) ?>
         </div>
 
+        <?php if (!empty($currentCollection['banner'])) : ?>
+            <section class="collection-hero <?= ($currentCollection['banner']['mode'] ?? '') === 'image-only' ? 'is-image-only' : '' ?>">
+                <?php if (($currentCollection['banner']['mode'] ?? '') === 'image-only') : ?>
+                    <img src="<?= html_escape($currentCollection['banner']['image'] ?? '') ?>" alt="<?= html_escape($pageTitle) ?>" class="collection-hero-image">
+                <?php else : ?>
+                    <div class="collection-hero-copy">
+                        <p class="collection-hero-eyebrow"><?= html_escape($currentCollection['banner']['eyebrow'] ?? '') ?></p>
+                        <h2 class="collection-hero-subtitle"><?= html_escape($currentCollection['banner']['subtitle'] ?? '') ?></h2>
+                        <h1 class="collection-hero-title"><?= html_escape($currentCollection['banner']['title'] ?? $pageTitle) ?></h1>
+                        <p class="collection-hero-description"><?= html_escape($currentCollection['banner']['description'] ?? '') ?></p>
+                    </div>
+                    <div class="collection-hero-media">
+                        <img src="<?= html_escape($currentCollection['banner']['image'] ?? '') ?>" alt="<?= html_escape($pageTitle) ?>" class="collection-hero-image">
+                    </div>
+                <?php endif ?>
+            </section>
+        <?php endif ?>
+
         <div class="row g-4 catalog-layout">
             <div class="col-xl-3 col-lg-4">
                 <aside class="catalog-sidebar">
