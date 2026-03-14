@@ -14,6 +14,7 @@ class Product
     public $pd_info;
     public $pd_image;
     public $cat_id;
+    public $pd_sizes = '';
     private array $errors = [];
 
     public function getID(): int
@@ -33,6 +34,9 @@ class Product
         $this->pd_info = $data['pd_info'] ?? '';
         $this->pd_image = $data['pd_image'] ?? '';
         $this->cat_id = $data['cat_id'] ?? '';
+        $allowed = ['XS', 'M', 'L', 'Freezie'];
+        $sizesRaw = isset($data['pd_sizes']) && is_array($data['pd_sizes']) ? $data['pd_sizes'] : [];
+        $this->pd_sizes = implode(',', array_filter($sizesRaw, fn($s) => in_array($s, $allowed, true)));
         return $this;
     }
 
@@ -88,7 +92,8 @@ class Product
             'pd_price' => $this->pd_price,
             'pd_info' => $this->pd_info,
             'pd_image' => $this->pd_image,
-            'cat_id' => $this->cat_id
+            'cat_id' => $this->cat_id,
+            'pd_sizes' => $this->pd_sizes
         ] = $row;
 
         return $this;
@@ -116,24 +121,26 @@ class Product
         if ($this->pd_id >= 0) {
             $statement = $this->db->prepare('UPDATE products 
                 SET pd_name = :name, pd_price = :price, pd_info = :info, 
-                pd_image = :image, cat_id = :cat_id WHERE pd_id = :pd_id');
+                pd_image = :image, cat_id = :cat_id, pd_sizes = :pd_sizes WHERE pd_id = :pd_id');
             $result = $statement->execute([
                 'name' => $this->pd_name,
                 'price' => $this->pd_price,
                 'info' => $this->pd_info,
                 'image' => $this->pd_image,
                 'cat_id' => $this->cat_id,
+                'pd_sizes' => $this->pd_sizes,
                 'pd_id' => $this->pd_id
             ]);
         } else {
-            $statement = $this->db->prepare('INSERT INTO products(pd_name, pd_price, pd_info, pd_image, cat_id) 
-                VALUES (:name, :price, :info, :image, :cat_id)');
+            $statement = $this->db->prepare('INSERT INTO products(pd_name, pd_price, pd_info, pd_image, cat_id, pd_sizes) 
+                VALUES (:name, :price, :info, :image, :cat_id, :pd_sizes)');
             $result = $statement->execute([
                 'name' => $this->pd_name,
                 'price' => $this->pd_price,
                 'info' => $this->pd_info,
                 'image' => $this->pd_image,
-                'cat_id' => $this->cat_id
+                'cat_id' => $this->cat_id,
+                'pd_sizes' => $this->pd_sizes
             ]);
 
             if ($result) {
@@ -162,7 +169,7 @@ class Product
     }
 
     // Đếm số lượng sản phẩm
-    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null, array $keywords = [], bool $isNew = false): int
+    public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null, array $keywords = [], bool $isNew = false, ?string $size = null): int
     {
         $sql = 'SELECT count(*) FROM products WHERE 1=1';
         $params = [];
@@ -174,6 +181,11 @@ class Product
         if ($cat_id !== -1) {
             $sql .= ' AND cat_id = :cat_id';
             $params[':cat_id'] = $cat_id;
+        }
+
+        if ($size !== null && $size !== '') {
+            $sql .= ' AND FIND_IN_SET(:size, pd_sizes) > 0';
+            $params[':size'] = $size;
         }
 
         if ($minPrice !== null) {
@@ -210,7 +222,8 @@ class Product
         ?float $minPrice = null,
         ?float $maxPrice = null,
         array $keywords = [],
-        bool $isNew = false
+        bool $isNew = false,
+        ?string $size = null
     ): array
     {
         $products = [];
@@ -230,6 +243,10 @@ class Product
 
         if ($cat_id !== -1) {
             $sql .= ' AND cat_id = :cat_id';
+        }
+
+        if ($size !== null && $size !== '') {
+            $sql .= ' AND FIND_IN_SET(:size, pd_sizes) > 0';
         }
 
         if ($minPrice !== null) {
@@ -254,6 +271,10 @@ class Product
 
         if ($cat_id !== -1) {
             $statement->bindValue(':cat_id', $cat_id, PDO::PARAM_INT);
+        }
+
+        if ($size !== null && $size !== '') {
+            $statement->bindValue(':size', $size);
         }
 
         if ($minPrice !== null) {

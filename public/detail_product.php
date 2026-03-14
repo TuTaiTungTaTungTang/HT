@@ -33,27 +33,65 @@ include_once __DIR__ . '/../src/partials/header.php'
 
                 <!-- Tên danh mục sản phẩm -->
                 <p class="my-3 product-meta"><b>Danh mục:</b> <?=html_escape($category->getNameByID($product->cat_id)) ?></p>
-                
+
                 <!-- Giá sản phẩm -->
-                <p class="price_product my-4"><?= number_format(html_escape($product->pd_price)) . '₫' ?></p>
-                
-                
+                <p class="price_product my-3"><?= number_format($product->pd_price) . '₫' ?></p>
 
-                    <!-- Nút thêm giỏ hàng -->
-                    <?php if(isset($_SESSION['role']) && $_SESSION['role']=='user' && isset($_SESSION['name']) && isset($_SESSION['id'])){
-                            $id = $_SESSION['id'];
-                            echo'
-                            <form action="cart_add.php" method="post">
-                                <input type="hidden" name="idsanpham" value="'.$product->getID().'">
-                                <input type="hidden" name="iduser" value="'.$_SESSION['id'].'">
-                                <input type="submit" class="add_product" name = "themgiohang" value="Thêm vào giỏ hàng">
-                            </form>
-                            ';
-                            }
-                            else echo '<input type="submit" class="add_product" value="Thêm vào giỏ hàng" disabled>';
-                    ?>
+                <hr class="my-3">
 
-                
+                <?php
+                $sizes = !empty($product->pd_sizes)
+                    ? array_filter(array_map('trim', explode(',', $product->pd_sizes)))
+                    : [];
+                ?>
+
+                <!-- Chọn kích thước -->
+                <?php if (!empty($sizes)) : ?>
+                <div class="pd-size-section mb-4">
+                    <p class="pd-section-label">Kích thước: <span class="pd-selected-size-label"></span></p>
+                    <div class="pd-size-picker">
+                        <?php foreach ($sizes as $sz) : ?>
+                            <button type="button" class="pd-size-btn" data-size="<?= html_escape($sz) ?>">
+                                <?= html_escape($sz) ?>
+                            </button>
+                        <?php endforeach ?>
+                    </div>
+                </div>
+                <?php endif ?>
+
+                <!-- Số lượng + thêm giỏ -->
+                <?php if(isset($_SESSION['role']) && $_SESSION['role']==='user' && isset($_SESSION['id'])) : ?>
+                <form action="cart_add.php" method="post" id="addCartForm">
+                    <input type="hidden" name="idsanpham" value="<?= $product->getID() ?>">
+                    <input type="hidden" name="iduser" value="<?= (int)$_SESSION['id'] ?>">
+                    <input type="hidden" name="pd_size" id="pd_size_input" value="">
+
+                    <div class="pd-qty-row mb-4">
+                        <div class="pd-qty-wrap">
+                            <button type="button" class="pd-qty-btn decrement_btn" aria-label="Giảm">&#8722;</button>
+                            <input type="number" class="pd-qty-input pd_qty" name="quantity" value="1" min="1" max="99" readonly>
+                            <button type="button" class="pd-qty-btn increment_btn" aria-label="Tăng">&#43;</button>
+                        </div>
+                    </div>
+
+                    <div class="pd-action-row">
+                        <button type="submit" name="themgiohang" class="pd-btn-cart">Thêm vào giỏ</button>
+                        <button type="submit" name="themgiohang" class="pd-btn-buynow" id="buyNowBtn">Mua ngay</button>
+                    </div>
+                </form>
+                <?php else : ?>
+                <div class="pd-qty-row mb-4">
+                    <div class="pd-qty-wrap">
+                        <button type="button" class="pd-qty-btn" disabled>&#8722;</button>
+                        <input type="number" class="pd-qty-input" value="1" min="1" max="99" readonly disabled>
+                        <button type="button" class="pd-qty-btn" disabled>&#43;</button>
+                    </div>
+                </div>
+                <div class="pd-action-row">
+                    <a href="/onlinestore/public/login.php" class="pd-btn-cart">Đăng nhập để mua</a>
+                </div>
+                <?php endif ?>
+
                 <!-- Thông tin sản phẩm -->
                 <div class="my-4 product-info-wrap">
                     <p class="info_product"><?= html_escape($product->pd_info) ?></p>
@@ -67,38 +105,43 @@ include_once __DIR__ . '/../src/partials/header.php'
     <?php include_once __DIR__ . '/../src/partials/footer.php' ?>
 
     <script>
-        $(document).ready(function() {
-            $('.increment_btn').click(function(e) {
-                e.preventDefault();
+        (function () {
+            // --- Size selector ---
+            var sizeButtons = document.querySelectorAll('.pd-size-btn');
+            var sizeInput   = document.getElementById('pd_size_input');
+            var sizeLabel   = document.querySelector('.pd-selected-size-label');
 
-                var qty = $('.pd_qty').val();
-                var max = $('.pd_qty').attr('max');
-                var min = $('.pd_qty').attr('min');
-
-                var value = parseInt(qty, 10);
-                
-
-                if (value < max) {
-                    value++;
-                    $('.pd_qty').val(value);
-                }
+            sizeButtons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var isActive = btn.classList.contains('active');
+                    // Bỏ chọn tất cả trước
+                    sizeButtons.forEach(function (b) { b.classList.remove('active'); });
+                    if (!isActive) {
+                        // Chọn cái đã click
+                        btn.classList.add('active');
+                        if (sizeInput) sizeInput.value = btn.dataset.size;
+                        if (sizeLabel) sizeLabel.textContent = btn.dataset.size;
+                    } else {
+                        // Click lần 2 → bỏ chọn
+                        if (sizeInput) sizeInput.value = '';
+                        if (sizeLabel) sizeLabel.textContent = '';
+                    }
+                });
             });
 
-            $('.decrement_btn').click(function(e) {
-                e.preventDefault();
+            // --- Quantity +/- ---
+            var qtyInput = document.querySelector('.pd_qty');
 
-                var qty = $('.pd_qty').val();
-                var min = $('.pd_qty').attr('min');
-
-                var value = parseInt(qty, 10);
-                
-                if (value > min) {
-                    value--;
-                    $('.pd_qty').val(value);
-                }
+            document.querySelector('.increment_btn') && document.querySelector('.increment_btn').addEventListener('click', function () {
+                var v = parseInt(qtyInput.value, 10);
+                if (v < 99) { qtyInput.value = v + 1; }
             });
 
-        });
+            document.querySelector('.decrement_btn') && document.querySelector('.decrement_btn').addEventListener('click', function () {
+                var v = parseInt(qtyInput.value, 10);
+                if (v > 1) { qtyInput.value = v - 1; }
+            });
+        })();
     </script>
 
 </body>

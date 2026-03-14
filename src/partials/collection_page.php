@@ -34,10 +34,12 @@ $priceMax = $priceKey !== '' ? $priceRangeMap[$priceKey][1] : null;
 $selectedCategory = $currentCollection['categoryId'] ?? -1;
 $keywordTerms = $currentCollection['keywords'] ?? [];
 $isNewOnly = !empty($currentCollection['isNew']);
-$sizeOptions = ['XS', 'M', 'L', 'Freezie'];
+$allowedSizes = ['XS', 'M', 'L', 'Freezie'];
+$sizeOptions = $allowedSizes;
+$selectedSize = (isset($_GET['size']) && in_array($_GET['size'], $allowedSizes, true)) ? $_GET['size'] : null;
 $pageTitle = $currentCollection['title'];
 
-$totalRecords = $productModel->count($selectedCategory, $priceMin, $priceMax, $keywordTerms, $isNewOnly);
+$totalRecords = $productModel->count($selectedCategory, $priceMin, $priceMax, $keywordTerms, $isNewOnly, $selectedSize);
 $paginator = new Paginator(
     totalRecords: $totalRecords,
     recordsPerPage: $limit,
@@ -52,13 +54,17 @@ $products = $productModel->paginate(
     $priceMin,
     $priceMax,
     $keywordTerms,
-    $isNewOnly
+    $isNewOnly,
+    $selectedSize
 );
 $pages = $paginator->getPages(length: 3);
 
 $baseParams = ['sort' => $sort, 'limit' => $limit];
 if ($priceKey !== '') {
     $baseParams['price'] = $priceKey;
+}
+if ($selectedSize !== null) {
+    $baseParams['size'] = $selectedSize;
 }
 
 $sidebarCollections = array_filter(
@@ -192,8 +198,8 @@ include_once __DIR__ . '/header.php'
                                     <li>
                                         <label class="filter-option">
                                             <span class="left-part">
-                                                <input type="checkbox" disabled>
-                                                <span><?= $sizeLabel ?></span>
+                                                <input type="radio" name="size" value="<?= html_escape($sizeLabel) ?>" <?= $selectedSize === $sizeLabel ? 'checked' : '' ?>>
+                                                <span><?= html_escape($sizeLabel) ?></span>
                                             </span>
                                         </label>
                                     </li>

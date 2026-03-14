@@ -135,8 +135,20 @@ include_once __DIR__ . '/../src/partials/header.php'
                     </div>
 
 
+                    <!-- Sizes -->
+                    <div class="form-group">
+                        <label class="mt-4 mb-2 d-block">Kích thước</label>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <?php foreach (['XS', 'M', 'L', 'Freezie'] as $sz) : ?>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="pd_sizes[]" value="<?= $sz ?>" id="sz_<?= $sz ?>" <?= (isset($_POST['pd_sizes']) && in_array($sz, (array)$_POST['pd_sizes'])) ? 'checked' : '' ?>>
+                                    <label class="form-check-label fs-5" for="sz_<?= $sz ?>"><?= $sz ?></label>
+                                </div>
+                            <?php endforeach ?>
+                        </div>
+                    </div>
+
                     <!-- Submit -->
-                    <button type="submit" name="submit" class="btn btn-primary fs-4 mt-4 p-3 fw-bold">Thêm sản phẩm</button>
                 </form>
 
             </div>

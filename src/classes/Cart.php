@@ -61,16 +61,17 @@ class Cart
         if(!$row) return 0;
         else return 1;
     }
-    public function save() : int {
+    public function save(int $quantity = 1) : int {
         $result = 0;
+        $qty = max(1, $quantity);
         $statement = $this->db->prepare("insert into carts values (:user, :pd, :quantity)");
         $result = $statement->execute([
             'user' =>$this->user_id,
             'pd' =>$this->pd_id,
-            'quantity' => 1
+            'quantity' => $qty
         ]);
         if($result)
-            $this->pd_quantity = 1;
+            $this->pd_quantity = $qty;
         
         return $result;    
         
