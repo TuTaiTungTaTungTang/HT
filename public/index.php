@@ -294,11 +294,15 @@ include_once __DIR__ .'/../src/partials/header.php'
             </section>
 
             <section class="container-fluid category-hot insta-strip">
+                <div class="section-head">
+                    <h2 class="title">@ FOLLOW US ON INSTAGRAM</h2>
+                </div>
                 <div class="row g-0">
-                    <div class="col-6 col-lg-3"><img src="./images/bst1.png" alt="Bo suu tap 1"></div>
-                    <div class="col-6 col-lg-3"><img src="./images/bst2.png" alt="Bo suu tap 2"></div>
-                    <div class="col-6 col-lg-3"><img src="./images/bst3.png" alt="Bo suu tap 3"></div>
-                    <div class="col-6 col-lg-3"><img src="./images/bst4.png" alt="Bo suu tap 4"></div>
+                    <div class="col-6 col-lg"><img src="./images/ins1.jpeg" alt="Instagram 1"></div>
+                    <div class="col-6 col-lg"><img src="./images/ins2.jpeg" alt="Instagram 2"></div>
+                    <div class="col-6 col-lg"><img src="./images/ins3.jpeg" alt="Instagram 3"></div>
+                    <div class="col-6 col-lg"><img src="./images/ins4.jpeg" alt="Instagram 4"></div>
+                    <div class="col-6 col-lg"><img src="./images/ins5.jpeg" alt="Instagram 5"></div>
                 </div>
             </section>
 

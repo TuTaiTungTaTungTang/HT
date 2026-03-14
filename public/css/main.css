@@ -1058,6 +1058,30 @@ li.nav-item.mx-4 {
     aspect-ratio: 1/1;
     object-fit: cover;
     display: block;
+    transition: transform 0.4s ease;
+}
+
+.insta-strip .row > div:hover img {
+    transform: scale(1.08);
+}
+
+.insta-strip .row > div {
+    position: relative;
+    overflow: hidden;
+}
+
+.insta-strip .row > div::after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.insta-strip .row > div:hover::after {
+    opacity: 1;
 }
 
 footer {
