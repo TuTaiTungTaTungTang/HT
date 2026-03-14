@@ -160,4 +160,13 @@ return [
         'defaultSort' => 'name_asc',
         'showInSidebar' => false,
     ],
+    'flash-sale' => [
+        'title' => 'FLASH SALE',
+        'path' => '/onlinestore/public/flash_sale.php',
+        'categoryId' => -1,
+        'keywords' => [],
+        'collectionCode' => 'flash-sale',
+        'defaultSort' => 'newest',
+        'showInSidebar' => false,
+    ],
 ];
