@@ -179,7 +179,7 @@ INSERT INTO `products` (`pd_id`, `pd_name`, `pd_price`, `pd_info`, `pd_image`, `
 (113, 'Dam Lua Thien Thanh', '520000', 'Dam lua mem voi tong xanh trong, mang cam giac nhe nhang va thanh thoat.', 'bst-xn-2.jpg', 4, 0, 'XS,M,L', 'xuan-nhien'),
 (114, 'Ao Croptop Dao Hong', '285000', 'Croptop xep ly nhe, gam hong phan diu mat cho mua le hoi dau nam.', 'bst-xn-3.jpg', 1, 0, 'XS,M,L', 'xuan-nhien'),
 (115, 'Chan vay Xep Ly Nhu Y', '355000', 'Chan vay xep ly de di chuc tet, de phoi voi nhieu kieu ao.', 'bst-xn-4.jpg', 8, 0, 'XS,M,L', 'xuan-nhien'),
-(116, 'Dam Sat Scarlet Muse', '545000', 'Dam sat om dang ton form, hop cho nhung buoi hen toi va su kien nho.', 'bst-no-1.jpg', 4, 0, 'XS,M,L', 'night-out'),
+(116, 'Dam Sat Scarlet Muse', '545000', 'Dam sat om dang ton form, hop cho nhung buoi hen toi va Sự kiện nho.', 'bst-no-1.jpg', 4, 0, 'XS,M,L', 'night-out'),
 (117, 'Ao Corset Velvet Glow', '395000', 'Ao corset nhan eo, tao diem nhan manh me cho set do night out.', 'bst-no-2.jpg', 1, 0, 'XS,M,L', 'night-out'),
 (118, 'Chan vay Mini Noir', '315000', 'Chan vay mini tong toi, phoi cung boots va ao om rat hop.', 'bst-no-3.jpg', 8, 0, 'XS,M,L', 'night-out'),
 (119, 'Tui Mini Rouge', '265000', 'Tui mini de tiec nho, kich thuoc gon nhe nhung van noi bat.', 'bst-no-4.jpg', 3, 0, 'Freezie', 'night-out'),

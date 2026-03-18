@@ -24,7 +24,7 @@ try {
         ['pd_name' => 'Chan vay Xep Ly Nhu Y', 'pd_price' => 355000, 'pd_info' => 'Chan vay xep ly de di chuc tet, de phoi voi nhieu kieu ao.', 'pd_image' => 'bst-xn-4.jpg', 'cat_id' => 8, 'pd_sizes' => 'XS,M,L', 'pd_collection' => 'xuan-nhien'],
 
         // NIGHT OUT — ảnh mới bst-no-*.jpg
-        ['pd_name' => 'Dam Sat Scarlet Muse', 'pd_price' => 545000, 'pd_info' => 'Dam sat om dang ton form, hop cho nhung buoi hen toi va su kien nho.', 'pd_image' => 'bst-no-1.jpg', 'cat_id' => 4, 'pd_sizes' => 'XS,M,L', 'pd_collection' => 'night-out'],
+        ['pd_name' => 'Dam Sat Scarlet Muse', 'pd_price' => 545000, 'pd_info' => 'Dam sat om dang ton form, hop cho nhung buoi hen toi va Sự kiện nho.', 'pd_image' => 'bst-no-1.jpg', 'cat_id' => 4, 'pd_sizes' => 'XS,M,L', 'pd_collection' => 'night-out'],
         ['pd_name' => 'Ao Corset Velvet Glow', 'pd_price' => 395000, 'pd_info' => 'Ao corset nhan eo, tao diem nhan manh me cho set do night out.', 'pd_image' => 'bst-no-2.jpg', 'cat_id' => 1, 'pd_sizes' => 'XS,M,L', 'pd_collection' => 'night-out'],
         ['pd_name' => 'Chan vay Mini Noir', 'pd_price' => 315000, 'pd_info' => 'Chan vay mini tong toi, phoi cung boots va ao om rat hop.', 'pd_image' => 'bst-no-3.jpg', 'cat_id' => 8, 'pd_sizes' => 'XS,M,L', 'pd_collection' => 'night-out'],
         ['pd_name' => 'Tui Mini Rouge', 'pd_price' => 265000, 'pd_info' => 'Tui mini de tiec nho, kich thuoc gon nhe nhung van noi bat.', 'pd_image' => 'bst-no-4.jpg', 'cat_id' => 3, 'pd_sizes' => 'Freezie', 'pd_collection' => 'night-out'],

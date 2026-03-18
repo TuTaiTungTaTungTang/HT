@@ -8,28 +8,28 @@ include_once __DIR__ . '/../src/partials/header.php';
 
     <div class="container info-page">
         <div class="info-breadcrumb">
-            <a href="/onlinestore/public/index.php">Trang chu</a> / Gioi thieu
+            <a href="/onlinestore/public/index.php">Trang chủ</a> / Giới thiệu
         </div>
 
         <div class="row g-4">
             <div class="col-lg-3">
                 <aside class="info-card">
-                    <h3>Danh muc</h3>
+                    <h3>Danh mục</h3>
                     <ul class="info-list">
-                        <li><a class="active" href="/onlinestore/public/gioi_thieu.php">Gioi thieu</a></li>
-                        <li><a href="/onlinestore/public/su_kien.php">Su kien</a></li>
-                        <li><a href="/onlinestore/public/tuyen_dung.php">Tuyen dung</a></li>
-                        <li><a href="/onlinestore/public/lien_he.php">Lien he</a></li>
+                        <li><a class="active" href="/onlinestore/public/gioi_thieu.php">Giới thiệu</a></li>
+                        <li><a href="/onlinestore/public/su_kien.php">Sự kiện</a></li>
+                        <li><a href="/onlinestore/public/tuyen_dung.php">Tuyển dụng</a></li>
+                        <li><a href="/onlinestore/public/lien_he.php">Liên hệ</a></li>
                     </ul>
                 </aside>
             </div>
 
             <div class="col-lg-9 info-content">
-                <h1>Gioi thieu</h1>
-                <p>Ra doi nam 2020, MORNING bat dau voi mot mong muon rat don gian: tao nen nhung trang phuc de mac, de yeu va de the hien chinh ban tren moi phien ban.</p>
-                <p>Tui minh tin rang: trang phuc khong chi la thu ban khoac len nguoi, ma con la nang luong ban mang theo, mot cach de moi co gai the hien ca tinh va cam xuc rieng minh.</p>
-                <p>Tai MORNING, ban se luon tim thay nhung thiet ke toi gian, tre trung, hien dai, nhung van du thoai mai de song dung voi nhip dieu ca nhan.</p>
-                <p>Tung chi tiet, tu chat lieu, duong may den bang mau, tung lop lot mem mai deu duoc cham chut de mang lai su tu nhien, vui tuoi trong ca nhung khoanh khac thuong ngay nhat.</p>
+                <h1>Giới thiệu</h1>
+                <p>Ra đời năm 2020, MORNING bắt đầu với một mong muốn rất đơn giản: tạo nên những trang phục dễ mặc, dễ yêu và dễ thể hiện chính bạn trên mỗi phiên bản.</p>
+                <p>Tụi mình tin rằng: trang phục không chỉ là thứ bạn khoác lên người, mà còn là năng lượng bạn mang theo, một cách để mỗi cô gái thể hiện cá tính và cảm xúc riêng mình.</p>
+                <p>Tại MORNING, bạn sẽ luôn tìm thấy những thiết kế tối giản, trẻ trung, hiện đại, nhưng vẫn đủ thoải mái để sống đúng với nhịp điệu cá nhân.</p>
+                <p>Từng chi tiết, từ chất liệu, đường may đến bảng màu, từng lớp lót mềm mại đều được chăm chút để mang lại sự tự nhiên, vui tươi trong cả những khoảnh khắc thường ngày nhất.</p>
             </div>
         </div>
     </div>
