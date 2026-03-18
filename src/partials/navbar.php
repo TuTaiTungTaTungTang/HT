@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $isUserLoggedIn = isset($_SESSION['id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'user';
+$isAdminLoggedIn = isset($_SESSION['id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 $sessionAvatar = isset($_SESSION['avatar']) ? trim((string) $_SESSION['avatar']) : '';
 $miniCartItems = [];
 $miniCartTotalQuantity = 0;
@@ -156,18 +157,20 @@ if ($isUserLoggedIn && isset($PDO)) {
                             </ul>
                         </div>
                     <?php endif; ?>
-                    <a href="/onlinestore/public/favorites.php" class="action-link favorite-nav-link" aria-label="Yêu thích"><i class="fa-regular fa-heart"></i><span class="count-badge favorite-count-badge">0</span></a>
-                    <?php if ($isUserLoggedIn) : ?>
-                        <a href="cart.php?id=<?= (int) $_SESSION['id'] ?>" class="action-link js-cart-toggle" aria-label="Giỏ hàng">
-                            <i class="fa-solid fa-cart-shopping"></i>
-                            <span class="count-badge cart-count-badge"><?= $miniCartTotalQuantity ?></span>
-                        </a>
-                    <?php else : ?>
-                        <a href="login.php" class="action-link" aria-label="Giỏ hàng">
-                            <i class="fa-solid fa-cart-shopping"></i>
-                            <span class="count-badge cart-count-badge">0</span>
-                        </a>
-                    <?php endif ?>
+                    <?php if (!$isAdminLoggedIn) : ?>
+                        <a href="/onlinestore/public/favorites.php" class="action-link favorite-nav-link" aria-label="Yêu thích"><i class="fa-regular fa-heart"></i><span class="count-badge favorite-count-badge">0</span></a>
+                        <?php if ($isUserLoggedIn) : ?>
+                            <a href="cart.php?id=<?= (int) $_SESSION['id'] ?>" class="action-link js-cart-toggle" aria-label="Giỏ hàng">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                <span class="count-badge cart-count-badge"><?= $miniCartTotalQuantity ?></span>
+                            </a>
+                        <?php else : ?>
+                            <a href="login.php" class="action-link" aria-label="Giỏ hàng">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                <span class="count-badge cart-count-badge">0</span>
+                            </a>
+                        <?php endif ?>
+                    <?php endif; ?>
                 </div>
 
                 <form action="search.php" method="GET" class="d-flex mobile-search" role="search">

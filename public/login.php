@@ -12,9 +12,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if($profile->validateL()){
         $_SESSION['name'] = $profile->name;
         $_SESSION['email'] = $profile->email;
-       $_SESSION['role'] = $profile->getRole();
+        $_SESSION['role'] = $profile->getRole();
         $_SESSION['id'] = $profile->getID();
         $_SESSION['avatar'] = $profile->getAvatar();
+
+        if ($_SESSION['role'] === 'admin') {
+            redirect('/onlinestore/public/category_list.php');
+        }
+
         redirect('/');
     } 
     $errors = $profile->getValidationErrors();

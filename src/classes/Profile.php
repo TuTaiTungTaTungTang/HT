@@ -111,7 +111,7 @@ class Profile
     {
         ensure_user_profile_columns($this->db);
        
-        $statement = $this->db->prepare("SELECT user_id, user_name, user_avatar FROM users WHERE user_email = :email and user_psw = :psw");
+        $statement = $this->db->prepare("SELECT user_id, user_name, user_avatar, role FROM users WHERE user_email = :email and user_psw = :psw");
         $statement->execute([
             'email' =>$this->email,
             'psw'=> $this->psw
@@ -124,6 +124,7 @@ class Profile
             $this->id = $row['user_id'];
             $this->name = $row['user_name'];
             $this->avatar = isset($row['user_avatar']) ? (string) $row['user_avatar'] : '';
+            $this->role = isset($row['role']) ? (string) $row['role'] : 'user';
 
         }
         
