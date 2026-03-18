@@ -36,13 +36,19 @@ include_once __DIR__ .'/../src/partials/header.php'
         <div id="carouselExampleInterval" class="carousel slide hero-card" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active" data-bs-interval="3200">
-                    <img src="./images/banner1.jpg" class="d-block w-100 img-carousel" alt="Summer collection">
+                    <a href="/onlinestore/public/classmate_notes.php" aria-label="Mở BST Classmate Notes">
+                        <img src="./images/banner1.jpg" class="d-block w-100 img-carousel" alt="Summer collection">
+                    </a>
                 </div>
                 <div class="carousel-item" data-bs-interval="3200">
-                    <img src="./images/banner2.png" class="d-block w-100 img-carousel" alt="New arrivals">
+                    <a href="/onlinestore/public/clair_de_spring.php" aria-label="Mở BST Clair De Spring">
+                        <img src="./images/banner2.png" class="d-block w-100 img-carousel" alt="New arrivals">
+                    </a>
                 </div>
                 <div class="carousel-item" data-bs-interval="3200">
-                    <img src="./images/banner3.png" class="d-block w-100 img-carousel" alt="Daily outfit">
+                    <a href="/onlinestore/public/city_hours.php" aria-label="Mở BST City Hours">
+                        <img src="./images/banner3.png" class="d-block w-100 img-carousel" alt="Daily outfit">
+                    </a>
                 </div>
             </div>
 
@@ -196,10 +202,10 @@ include_once __DIR__ .'/../src/partials/header.php'
 
             <section class="container-fluid bst-middle-strip">
                 <div class="row g-0">
-                    <div class="col-6 col-lg-3"><img src="./images/bst1.png" alt="Bo suu tap 1"></div>
-                    <div class="col-6 col-lg-3"><img src="./images/bst2.png" alt="Bo suu tap 2"></div>
-                    <div class="col-6 col-lg-3"><img src="./images/bst3.png" alt="Bo suu tap 3"></div>
-                    <div class="col-6 col-lg-3"><img src="./images/bst4.png" alt="Bo suu tap 4"></div>
+                    <div class="col-6 col-lg-3"><a href="/onlinestore/public/product.php" aria-label="Xem sản phẩm"><img src="./images/bst1.png" alt="Bo suu tap 1"></a></div>
+                    <div class="col-6 col-lg-3"><a href="/onlinestore/public/product.php" aria-label="Xem sản phẩm"><img src="./images/bst2.png" alt="Bo suu tap 2"></a></div>
+                    <div class="col-6 col-lg-3"><a href="/onlinestore/public/product.php" aria-label="Xem sản phẩm"><img src="./images/bst3.png" alt="Bo suu tap 3"></a></div>
+                    <div class="col-6 col-lg-3"><a href="/onlinestore/public/product.php" aria-label="Xem sản phẩm"><img src="./images/bst4.png" alt="Bo suu tap 4"></a></div>
                 </div>
             </section>
 
