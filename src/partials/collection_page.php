@@ -12,7 +12,7 @@ $currentPageFile = basename($currentPagePath);
 
 $productModel = new Product($PDO);
 
-$limit = (isset($_GET['limit']) && is_numeric($_GET['limit'])) ? (int) $_GET['limit'] : 30;
+$limit = (isset($_GET['limit']) && is_numeric($_GET['limit'])) ? (int) $_GET['limit'] :100;
 $page = (isset($_GET['page']) && is_numeric($_GET['page'])) ? (int) $_GET['page'] : 1;
 $allowedSort = ['newest', 'name_asc', 'name_desc', 'price_asc', 'price_desc'];
 $sort = isset($_GET['sort']) && in_array($_GET['sort'], $allowedSort, true)
