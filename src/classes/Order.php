@@ -26,6 +26,46 @@ class Order
         return $this->order_code;
     }
 
+    public static function statusOptions(): array
+    {
+        return [
+            0 => 'Chờ xác nhận',
+            1 => 'Chờ lấy hàng',
+            2 => 'Đang giao hàng',
+            3 => 'Đã giao',
+            4 => 'Trả hàng',
+            5 => 'Đã hủy',
+        ];
+    }
+
+    public static function statusTabToCode(string $tab): ?int
+    {
+        $map = [
+            'pending' => 0,
+            'pickup' => 1,
+            'shipping' => 2,
+            'delivered' => 3,
+            'return' => 4,
+            'cancelled' => 5,
+        ];
+
+        return $map[$tab] ?? null;
+    }
+
+    public static function statusCodeToTab(int $statusCode): ?string
+    {
+        $map = [
+            0 => 'pending',
+            1 => 'pickup',
+            2 => 'shipping',
+            3 => 'delivered',
+            4 => 'return',
+            5 => 'cancelled',
+        ];
+
+        return $map[$statusCode] ?? null;
+    }
+
     public function fill($code, $user, $pd, $data) : Order
     {
         $this->order_code = $code ?? '';
@@ -128,14 +168,20 @@ class Order
         return $result;
     }
 
-    public function getStatus($code): bool{
+    public function getStatus($code): int{
         $status = 0;
         $statement = $this->db->prepare('SELECT DISTINCT order_status  FROM orders where order_code = ?');
         $statement->execute([$code]);
         while($row = $statement->fetch()){
-            $status = $row['order_status'];
+            $status = (int) $row['order_status'];
         }
         return $status;
+    }
+
+    public function getStatusLabel(int $statusCode): string
+    {
+        $labels = self::statusOptions();
+        return $labels[$statusCode] ?? 'Không xác định';
     }
 
     public function getUserName(): string{
@@ -147,8 +193,14 @@ class Order
     }
 
     public function updateStatus($data)  {
+        $allowedStatusCodes = array_keys(self::statusOptions());
+        $nextStatus = isset($data['status']) ? (int) $data['status'] : 0;
+        if (!in_array($nextStatus, $allowedStatusCodes, true)) {
+            $nextStatus = 0;
+        }
+
         $statement = $this->db->prepare('update orders set order_status = ?  where order_code = ?');
-        $statement->execute([$data['status'], $this->order_code]); 
+        $statement->execute([$nextStatus, $this->order_code]); 
 
         $statement = $this->db->prepare('select distinct order_status from orders where order_code = ?');
         $statement->execute([$this->order_code]); 
@@ -245,10 +297,10 @@ class Order
             'user_id' => $userId,
         ];
 
-        if ($statusTab === 'pending') {
-            $sql .= ' AND o.order_status = 0';
-        } elseif ($statusTab === 'delivered') {
-            $sql .= ' AND o.order_status = 1';
+        $statusCode = self::statusTabToCode($statusTab);
+        if ($statusCode !== null) {
+            $sql .= ' AND o.order_status = :status_code';
+            $params['status_code'] = $statusCode;
         }
 
         if ($keyword !== '') {
@@ -273,7 +325,11 @@ class Order
         $counts = [
             'all' => 0,
             'pending' => 0,
+            'pickup' => 0,
+            'shipping' => 0,
             'delivered' => 0,
+            'return' => 0,
+            'cancelled' => 0,
         ];
 
         $statement = $this->db->prepare('SELECT order_status, COUNT(DISTINCT order_code) AS total FROM orders WHERE user_id = :user_id GROUP BY order_status');
@@ -282,10 +338,9 @@ class Order
         while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $status = (int) $row['order_status'];
             $total = (int) $row['total'];
-            if ($status === 1) {
-                $counts['delivered'] += $total;
-            } else {
-                $counts['pending'] += $total;
+            $statusTab = self::statusCodeToTab($status);
+            if ($statusTab !== null && array_key_exists($statusTab, $counts)) {
+                $counts[$statusTab] += $total;
             }
             $counts['all'] += $total;
         }

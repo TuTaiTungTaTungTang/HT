@@ -28,6 +28,9 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
         $orderInfor->updateStatus($_POST);
         $_SESSION['flash_message'] = 'Cập nhật trạng thái đơn hàng thành công';
     }
+
+    $statusOptions = Order::statusOptions();
+    $currentStatus = (int) $orderInfor->order_status;
     ?>
     <div class="container">
 
@@ -65,15 +68,11 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
                 <form action="" method="POST">
                     <td>
                         <select class="form-select fs-4" name='status' aria-label="Default select example">
-                            <?php
-                            if ($orderInfor->order_status)
-                                echo ' <option value="0"  >Đang xử lý</option>
-                                    <option value="1" selected>Đã giao hàng</option>';
-                            else 
-                                echo '<option value="0"  selected >Đang xử lý</option>
-                                <option value="1" >Đã giao hàng</option>'
-
-                            ?>
+                            <?php foreach ($statusOptions as $statusCode => $statusLabel): ?>
+                                <option value="<?= (int) $statusCode ?>" <?= $currentStatus === (int) $statusCode ? 'selected' : '' ?>>
+                                    <?= html_escape($statusLabel) ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </td>
                     <td>

@@ -59,8 +59,9 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
 
                     <!-- Tình trạng -->
                     <td>
-                        <?php if($order->getStatus($order_code)) echo 'Đã giao hàng';
-                                else echo 'Đang xử lý';
+                        <?php
+                            $statusCode = $order->getStatus($order_code);
+                            echo html_escape($order->getStatusLabel((int) $statusCode));
                         ?>
                     </td>
                    
@@ -110,18 +111,28 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
 
     <script>
         $(document).ready(function() {
+            let pendingDeleteForm = null;
+
             $('button[name="delete-order"]').on('click', function(e) {
                 e.preventDefault();
-                const form = $(this).closest('form');
+                pendingDeleteForm = $(this).closest('form');
                 const nameTd = $(this).closest('tr').find('td:first');
                 if (nameTd.length > 0) {
-                    $('.modal-body').html(
-                        `Bạn có chắc muốn xóa đơn hàng "${nameTd.text()}"?`
-                    );
+                    $('.modal-body').html(`Bạn có chắc muốn xóa đơn hàng "${nameTd.text().trim()}"?`);
+                } else {
+                    $('.modal-body').text('Bạn có chắc muốn xóa dữ liệu này không?');
                 }
-                $('#delete-confirm').on('click', '#delete', function() {
-                    form.trigger('submit');
-                });
+                $('#delete-confirm').modal('show');
+            });
+
+            $('#delete').off('click').on('click', function() {
+                if (pendingDeleteForm) {
+                    pendingDeleteForm.trigger('submit');
+                }
+            });
+
+            $('#delete-confirm').on('hidden.bs.modal', function() {
+                pendingDeleteForm = null;
             });
         });
     </script>

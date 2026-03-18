@@ -113,7 +113,7 @@ $contactEmailDisplay = $profile->contactEmail !== '' ? $profile->contactEmail : 
 $websiteDisplay = $profile->website !== '' ? $profile->website : 'Thêm thông tin';
 
 if ($section === 'orders') {
-    if ($orderTab === 'pending' || $orderTab === 'delivered') {
+    if (in_array($orderTab, $availableOrderTabs, true)) {
         $historyRows = $order->historyByUser($userId, $orderTab, $orderKeyword);
     } else {
         $historyRows = [];
@@ -250,7 +250,9 @@ include_once __DIR__ . '/../src/partials/header.php';
                                     <?php
                                     $orderCode = (int) $historyRow['order_code'];
                                     $orderItems = $order->itemsByCodeAndUser($orderCode, $userId);
-                                    $orderStatusText = ((int) $historyRow['order_status'] === 1) ? 'Đã giao' : 'Chờ xác nhận';
+                                    $statusCode = (int) $historyRow['order_status'];
+                                    $orderStatusText = $order->getStatusLabel($statusCode);
+                                    $statusClass = $statusCode === 3 ? 'done' : 'pending';
                                     ?>
                                     <article class="user-order-card">
                                         <div class="user-order-head">
@@ -258,7 +260,7 @@ include_once __DIR__ . '/../src/partials/header.php';
                                                 <h4>Đơn #<?= $orderCode ?></h4>
                                                 <p><?= html_escape((string) $historyRow['product_names']) ?></p>
                                             </div>
-                                            <span class="status <?= ((int) $historyRow['order_status'] === 1) ? 'done' : 'pending' ?>"><?= $orderStatusText ?></span>
+                                            <span class="status <?= $statusClass ?>"><?= html_escape($orderStatusText) ?></span>
                                         </div>
 
                                         <div class="user-order-meta">

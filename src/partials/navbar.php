@@ -91,6 +91,12 @@ if ($isUserLoggedIn && isset($PDO)) {
                         ?>
                     </li>
 
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') : ?>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link active" aria-current="page" href="user_list.php">QUẢN LÝ USER</a>
+                        </li>
+                    <?php endif; ?>
+
                     <?php
                     if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
                         echo '<li class="nav-item mx-4"><a class="nav-link active" aria-current="page" href="/onlinestore/public/flash_sale.php">ƯU ĐÃI</a></li>';

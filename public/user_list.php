@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 
 require_once __DIR__ . '/../src/bootstrap.php';
@@ -7,12 +7,11 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
     redirect('/');
 }
 
-use CT27502\Project\Category;
+use CT27502\Project\User;
 
-$category = new Category($PDO);
-$categories = $category->all();
+$user = new User($PDO);
+$users = $user->all();
 $i = 0;
-
 
 include_once __DIR__ . '/../src/partials/header.php'
 ?>
@@ -22,7 +21,7 @@ include_once __DIR__ . '/../src/partials/header.php'
 
     <div class="container">
         <?php
-        $subtitle = 'QUẢN LÝ DANH MỤC';
+        $subtitle = 'QUẢN LÝ NGƯỜI DÙNG';
         include_once __DIR__ . '/../src/partials/heading.php';
         ?>
 
@@ -36,8 +35,8 @@ include_once __DIR__ . '/../src/partials/header.php'
         <div class="row">
             <div class="col-12">
 
-                <a href="category_add.php" class="btn btn-primary mb-3 fs-4 p-3">
-                    <i class="fa fa-plus"></i> Thêm danh mục
+                <a href="user_add.php" class="btn btn-primary mb-3 fs-4 p-3">
+                    <i class="fa fa-plus"></i> Thêm người dùng
                 </a>
 
                 <!-- Table Starts Here -->
@@ -45,24 +44,34 @@ include_once __DIR__ . '/../src/partials/header.php'
                     <thead>
                         <tr class="text-center">
                             <th scope="col">STT</th>
-                            <th scope="col">Tên danh mục</th>
+                            <th scope="col">Tên người dùng</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Số điện thoại</th>
+                            <th scope="col">Vai trò</th>
                             <th scope="col">Quản lý</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        foreach ($categories as $category) :
+                        foreach ($users as $u) :
                             $i++;
                         ?>
                             <tr>
                                 <td class="text-center"><?= $i ?></td>
-                                <td><?= html_escape($category->cat_name) ?></td>
+                                <td><?= html_escape($u->user_name) ?></td>
+                                <td><?= html_escape($u->user_email) ?></td>
+                                <td><?= html_escape($u->user_phone ?: '-') ?></td>
+                                <td class="text-center">
+                                    <span class="badge <?= $u->user_role === 'admin' ? 'bg-danger' : 'bg-info' ?>">
+                                        <?= $u->user_role === 'admin' ? 'Admin' : 'User' ?>
+                                    </span>
+                                </td>
                                 <td class="d-flex justify-content-center">
-                                    <a href="<?= 'category_edit.php?id=' . $category->getID() ?>" class="btn btn-xs btn-warning fs-5 me-3">
+                                    <a href="<?= 'user_edit.php?id=' . $u->getID() ?>" class="btn btn-xs btn-warning fs-5 me-3">
                                         <i alt="Edit" class="fa fa-pencil"></i> Chỉnh sửa</a>
-                                    <form action="category_delete.php" method="POST" class="form-inline ml-1">
-                                        <input type="hidden" name="id" value="<?= $category->getID() ?>">
-                                        <button type="submit" name="delete-cat" class="btn btn-xs btn-danger fs-5 ms-3" data-bs-toggle="modal" data-bs-target="#delete-confirm">
+                                    <form action="user_delete.php" method="POST" class="form-inline ml-1">
+                                        <input type="hidden" name="id" value="<?= $u->getID() ?>">
+                                        <button type="submit" name="delete-user" class="btn btn-xs btn-danger fs-5 ms-3" data-bs-toggle="modal" data-bs-target="#delete-confirm">
                                             <i alt="Delete" class="fa fa-trash"></i> Xóa</a>
                                         </button>
                                     </form>
@@ -85,7 +94,7 @@ include_once __DIR__ . '/../src/partials/header.php'
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body fs-5">
-                    
+                    Bạn có chắc chắn muốn xóa người dùng này không?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger fs-5" id="delete">Xóa</button>
@@ -100,12 +109,12 @@ include_once __DIR__ . '/../src/partials/header.php'
         $(document).ready(function() {
             let pendingDeleteForm = null;
 
-            $('button[name="delete-cat"]').on('click', function(e) {
+            $('button[name="delete-user"]').on('click', function(e) {
                 e.preventDefault();
                 pendingDeleteForm = $(this).closest('form');
                 const nameTd = $(this).closest('tr').find('td:eq(1)');
                 if (nameTd.length > 0) {
-                    $('.modal-body').html(`Bạn có chắc muốn xóa "${nameTd.text().trim()}"?`);
+                    $('.modal-body').html(`Bạn có chắc muốn xóa người dùng "${nameTd.text().trim()}"?`);
                 } else {
                     $('.modal-body').text('Bạn có chắc muốn xóa dữ liệu này không?');
                 }
@@ -126,4 +135,3 @@ include_once __DIR__ . '/../src/partials/header.php'
 </body>
 
 </html>
-

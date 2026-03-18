@@ -196,18 +196,28 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
     <?php include_once __DIR__ . '/../src/partials/footer.php' ?>
     <script>
         $(document).ready(function() {
+            let pendingDeleteForm = null;
+
             $('button[name="delete-cart-item"]').on('click', function(e) {
                 e.preventDefault();
-                const form = $(this).closest('form');
+                pendingDeleteForm = $(this).closest('form');
                 const nameTd = $(this).closest('tr').find('td:eq(1)');
                 if (nameTd.length > 0) {
-                    $('.modal-body').html(
-                        `Bạn có chắc muốn xóa "${nameTd.text()}"?`
-                    );
+                    $('.modal-body').html(`Bạn có chắc muốn xóa "${nameTd.text().trim()}"?`);
+                } else {
+                    $('.modal-body').text('Bạn có chắc muốn xóa dữ liệu này không?');
                 }
-                $('#delete-confirm').on('click', '#delete', function() {
-                    form.trigger('submit');
-                });
+                $('#delete-confirm').modal('show');
+            });
+
+            $('#delete').off('click').on('click', function() {
+                if (pendingDeleteForm) {
+                    pendingDeleteForm.trigger('submit');
+                }
+            });
+
+            $('#delete-confirm').on('hidden.bs.modal', function() {
+                pendingDeleteForm = null;
             });
         });
     </script>
