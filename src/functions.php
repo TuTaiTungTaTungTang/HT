@@ -13,6 +13,50 @@ function redirect(string $location): void
     exit();
 }
 
+function ensure_user_avatar_column(PDO $pdo): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    $checked = true;
+
+    $statement = $pdo->query("SHOW COLUMNS FROM users LIKE 'user_avatar'");
+    $column = $statement ? $statement->fetch() : false;
+    if (!$column) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN user_avatar VARCHAR(255) NOT NULL DEFAULT ''");
+    }
+}
+
+function ensure_user_profile_columns(PDO $pdo): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    $checked = true;
+
+    $requiredColumns = [
+        "ALTER TABLE users ADD COLUMN user_avatar VARCHAR(255) NOT NULL DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN user_birthday DATE NULL",
+        "ALTER TABLE users ADD COLUMN user_gender VARCHAR(20) NOT NULL DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN user_phone VARCHAR(20) NOT NULL DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN user_address VARCHAR(255) NOT NULL DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN user_contact_email VARCHAR(255) NOT NULL DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN user_website VARCHAR(255) NOT NULL DEFAULT ''",
+    ];
+
+    foreach ($requiredColumns as $sql) {
+        try {
+            $pdo->exec($sql);
+        } catch (Throwable $th) {
+            // Ignore duplicate-column errors when schema is already up-to-date.
+        }
+    }
+}
+
 // Loại bỏ ký tự đặc biệt
 function html_escape(string|null $text): string
 {

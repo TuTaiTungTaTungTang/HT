@@ -225,6 +225,93 @@ class Order
         return $statement->execute([$data['order_code']]);
     }
 
+    public function historyByUser(int $userId, string $statusTab = 'all', string $keyword = ''): array
+    {
+        $history = [];
+        $keyword = trim($keyword);
+
+        $sql = 'SELECT
+                    o.order_code,
+                    MAX(o.order_id) AS latest_order_id,
+                    MAX(o.order_status) AS order_status,
+                    SUM(o.order_total) AS grand_total,
+                    SUM(o.pd_quantity) AS total_quantity,
+                    GROUP_CONCAT(DISTINCT p.pd_name ORDER BY p.pd_name SEPARATOR " | ") AS product_names
+                FROM orders o
+                LEFT JOIN products p ON p.pd_id = o.pd_id
+                WHERE o.user_id = :user_id';
+
+        $params = [
+            'user_id' => $userId,
+        ];
+
+        if ($statusTab === 'pending') {
+            $sql .= ' AND o.order_status = 0';
+        } elseif ($statusTab === 'delivered') {
+            $sql .= ' AND o.order_status = 1';
+        }
+
+        if ($keyword !== '') {
+            $sql .= ' AND (CAST(o.order_code AS CHAR) LIKE :keyword OR p.pd_name LIKE :keyword)';
+            $params['keyword'] = '%' . $keyword . '%';
+        }
+
+        $sql .= ' GROUP BY o.order_code ORDER BY latest_order_id DESC';
+
+        $statement = $this->db->prepare($sql);
+        $statement->execute($params);
+
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $history[] = $row;
+        }
+
+        return $history;
+    }
+
+    public function historyCountByStatus(int $userId): array
+    {
+        $counts = [
+            'all' => 0,
+            'pending' => 0,
+            'delivered' => 0,
+        ];
+
+        $statement = $this->db->prepare('SELECT order_status, COUNT(DISTINCT order_code) AS total FROM orders WHERE user_id = :user_id GROUP BY order_status');
+        $statement->execute(['user_id' => $userId]);
+
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $status = (int) $row['order_status'];
+            $total = (int) $row['total'];
+            if ($status === 1) {
+                $counts['delivered'] += $total;
+            } else {
+                $counts['pending'] += $total;
+            }
+            $counts['all'] += $total;
+        }
+
+        return $counts;
+    }
+
+    public function itemsByCodeAndUser(int $orderCode, int $userId): array
+    {
+        $items = [];
+        $statement = $this->db->prepare('SELECT o.pd_id, o.pd_quantity, o.order_total, p.pd_name, p.pd_price
+                                         FROM orders o
+                                         LEFT JOIN products p ON p.pd_id = o.pd_id
+                                         WHERE o.order_code = :order_code AND o.user_id = :user_id');
+        $statement->execute([
+            'order_code' => $orderCode,
+            'user_id' => $userId,
+        ]);
+
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $items[] = $row;
+        }
+
+        return $items;
+    }
+
     
 
 

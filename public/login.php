@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['email'] = $profile->email;
        $_SESSION['role'] = $profile->getRole();
         $_SESSION['id'] = $profile->getID();
+        $_SESSION['avatar'] = $profile->getAvatar();
         redirect('/');
     } 
     $errors = $profile->getValidationErrors();

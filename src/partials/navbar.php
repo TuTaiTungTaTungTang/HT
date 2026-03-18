@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $isUserLoggedIn = isset($_SESSION['id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'user';
+$sessionAvatar = isset($_SESSION['avatar']) ? trim((string) $_SESSION['avatar']) : '';
 $miniCartItems = [];
 $miniCartTotalQuantity = 0;
 $miniCartTotalAmount = 0;
@@ -108,6 +109,7 @@ if ($isUserLoggedIn && isset($PDO)) {
                                 echo '<li><a class="dropdown-item" href="category_list.php">Quản trị</a></li>';
                                 echo '<li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>';
                             } elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'user') {
+                                echo '<li><a class="dropdown-item" href="/onlinestore/public/profile.php">Thông tin người dùng</a></li>';
                                 echo '<li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>';
                             } else {
                                 echo '<li><a class="dropdown-item" href="login.php">Đăng nhập</a></li>';
@@ -122,25 +124,32 @@ if ($isUserLoggedIn && isset($PDO)) {
                     <button type="button" class="action-link search-toggle" aria-label="Tìm kiếm" aria-expanded="false" aria-controls="desktopSearchPanel">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
-                    <div class="dropdown nav-icon-dropdown">
-                        <button class="action-link dropdown-toggle user-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
-                            <i class="fa-regular fa-user"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <?php
-                            if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-                                echo '<li><a class="dropdown-item" href="category_list.php">Quản trị</a></li>';
-                                echo '<li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>';
-                            } elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'user') {
-                                echo '<li><span class="dropdown-item-text">' . html_escape($_SESSION['name']) . '</span></li>';
-                                echo '<li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>';
-                            } else {
-                                echo '<li><a class="dropdown-item" href="login.php">Đăng nhập</a></li>';
-                                echo '<li><a class="dropdown-item" href="register.php">Đăng ký</a></li>';
-                            }
-                            ?>
-                        </ul>
-                    </div>
+                    <?php if ($isUserLoggedIn) : ?>
+                        <a href="/onlinestore/public/profile.php" class="action-link user-profile-link" aria-label="Thông tin người dùng">
+                            <?php if ($sessionAvatar !== '') : ?>
+                                <img src="/onlinestore/public/avatar/<?= html_escape($sessionAvatar) ?>" alt="Avatar" class="nav-user-avatar">
+                            <?php else : ?>
+                                <i class="fa-regular fa-user"></i>
+                            <?php endif; ?>
+                        </a>
+                    <?php else : ?>
+                        <div class="dropdown nav-icon-dropdown">
+                            <button class="action-link dropdown-toggle user-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
+                                <i class="fa-regular fa-user"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <?php
+                                if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+                                    echo '<li><a class="dropdown-item" href="category_list.php">Quản trị</a></li>';
+                                    echo '<li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>';
+                                } else {
+                                    echo '<li><a class="dropdown-item" href="login.php">Đăng nhập</a></li>';
+                                    echo '<li><a class="dropdown-item" href="register.php">Đăng ký</a></li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                     <a href="/onlinestore/public/favorites.php" class="action-link favorite-nav-link" aria-label="Yêu thích"><i class="fa-regular fa-heart"></i><span class="count-badge favorite-count-badge">0</span></a>
                     <?php if ($isUserLoggedIn) : ?>
                         <a href="cart.php?id=<?= (int) $_SESSION['id'] ?>" class="action-link js-cart-toggle" aria-label="Giỏ hàng">
