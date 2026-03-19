@@ -46,6 +46,7 @@ include_once __DIR__ . '/../src/partials/header.php'
                 $sizes = !empty($product->pd_sizes)
                     ? array_filter(array_map('trim', explode(',', $product->pd_sizes)))
                     : [];
+                $sizeStockMap = $product->getSizeStockMap($product->getID());
                 ?>
 
                 <!-- Chọn kích thước -->
@@ -54,8 +55,9 @@ include_once __DIR__ . '/../src/partials/header.php'
                     <p class="pd-section-label">Kích thước: <span class="pd-selected-size-label"></span></p>
                     <div class="pd-size-picker">
                         <?php foreach ($sizes as $sz) : ?>
-                            <button type="button" class="pd-size-btn" data-size="<?= html_escape($sz) ?>">
-                                <?= html_escape($sz) ?>
+                            <?php $sizeQty = (int) ($sizeStockMap[$sz] ?? 0); ?>
+                            <button type="button" class="pd-size-btn <?= $sizeQty <= 0 ? 'is-out-of-stock' : '' ?>" data-size="<?= html_escape($sz) ?>" <?= $sizeQty <= 0 ? 'disabled' : '' ?>>
+                                <?= html_escape($sz) ?><?= $sizeQty <= 0 ? ' (Hết)' : '' ?>
                             </button>
                         <?php endforeach ?>
                     </div>
@@ -175,11 +177,44 @@ include_once __DIR__ . '/../src/partials/header.php'
             var sizeInput   = document.getElementById('pd_size_input');
             var sizeLabel   = document.querySelector('.pd-selected-size-label');
             var addCartForm = document.getElementById('addCartForm');
+            var addToCartBtn = document.getElementById('addToCartBtn');
+            var buyNowBtn = document.getElementById('buyNowBtn');
             var successModalEl = document.getElementById('detailAddCartSuccessModal');
             var successModal = successModalEl && window.bootstrap ? new bootstrap.Modal(successModalEl) : null;
 
+            function applyDefaultAvailableSize() {
+                var firstAvailable = null;
+                sizeButtons.forEach(function(btn) {
+                    if (!firstAvailable && !btn.disabled && !btn.classList.contains('is-out-of-stock')) {
+                        firstAvailable = btn;
+                    }
+                });
+
+                if (!firstAvailable) {
+                    if (sizeInput) sizeInput.value = '';
+                    if (sizeLabel) sizeLabel.textContent = 'Hết hàng';
+                    if (addToCartBtn) {
+                        addToCartBtn.disabled = true;
+                        addToCartBtn.textContent = 'Hết hàng';
+                    }
+                    if (buyNowBtn) {
+                        buyNowBtn.disabled = true;
+                    }
+                    return;
+                }
+
+                sizeButtons.forEach(function(b) { b.classList.remove('active'); });
+                firstAvailable.classList.add('active');
+                if (sizeInput) sizeInput.value = firstAvailable.dataset.size;
+                if (sizeLabel) sizeLabel.textContent = firstAvailable.dataset.size;
+            }
+
             sizeButtons.forEach(function (btn) {
                 btn.addEventListener('click', function () {
+                    if (btn.disabled || btn.classList.contains('is-out-of-stock')) {
+                        return;
+                    }
+
                     var isActive = btn.classList.contains('active');
                     // Bỏ chọn tất cả trước
                     sizeButtons.forEach(function (b) { b.classList.remove('active'); });
@@ -195,6 +230,8 @@ include_once __DIR__ . '/../src/partials/header.php'
                     }
                 });
             });
+
+            applyDefaultAvailableSize();
 
             // --- Quantity +/- ---
             var qtyInput = document.querySelector('.pd_qty');

@@ -24,6 +24,11 @@ foreach ($bstCollectionDefs as $bstDef) {
     $bstTabProducts[$bstDef['code']] = $product->getByCollection($bstDef['code'], 4);
 }
 
+$buildStockDataJson = static function (Product $productModel, int $productId): string {
+    $stockMap = $productModel->getSizeStockMap($productId);
+    return json_encode($stockMap, JSON_UNESCAPED_UNICODE) ?: '{}';
+};
+
 
 include_once __DIR__ .'/../src/partials/header.php'
 
@@ -101,6 +106,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                         data-product-price="<?= number_format(html_escape($promoProduct->pd_price)) . '₫' ?>"
                         data-product-image="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>"
                         data-product-sizes="<?= html_escape($promoProduct->pd_sizes ?? '') ?>"
+                        data-product-stock="<?= html_escape($buildStockDataJson($product, (int) $promoProduct->getID())) ?>"
                         data-product-link="detail_product.php?id=<?= $promoProduct->getID() ?>"
                     >
                         <div class="home-product-media">
@@ -122,6 +128,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                                     data-price="<?= number_format(html_escape($promoProduct->pd_price)) . '₫' ?>"
                                     data-image="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>"
                                     data-sizes="<?= html_escape($promoProduct->pd_sizes ?? '') ?>"
+                                    data-stock="<?= html_escape($buildStockDataJson($product, (int) $promoProduct->getID())) ?>"
                                     data-link="detail_product.php?id=<?= $promoProduct->getID() ?>"
                                 >Xem nhanh</button>
                             </div>
@@ -166,6 +173,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                         data-product-price="<?= number_format(html_escape($bestProduct->pd_price)) . '₫' ?>"
                         data-product-image="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>"
                         data-product-sizes="<?= html_escape($bestProduct->pd_sizes ?? '') ?>"
+                        data-product-stock="<?= html_escape($buildStockDataJson($product, (int) $bestProduct->getID())) ?>"
                         data-product-link="detail_product.php?id=<?= $bestProduct->getID() ?>"
                     >
                         <div class="home-product-media">
@@ -187,6 +195,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                                     data-price="<?= number_format(html_escape($bestProduct->pd_price)) . '₫' ?>"
                                     data-image="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>"
                                     data-sizes="<?= html_escape($bestProduct->pd_sizes ?? '') ?>"
+                                    data-stock="<?= html_escape($buildStockDataJson($product, (int) $bestProduct->getID())) ?>"
                                     data-link="detail_product.php?id=<?= $bestProduct->getID() ?>"
                                 >Xem nhanh</button>
                             </div>
@@ -233,6 +242,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                                 data-product-price="<?= number_format(html_escape($hotProduct->pd_price)) . '₫' ?>"
                                 data-product-image="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>"
                                 data-product-sizes="<?= html_escape($hotProduct->pd_sizes ?? '') ?>"
+                                data-product-stock="<?= html_escape($buildStockDataJson($product, (int) $hotProduct->getID())) ?>"
                                 data-product-link="detail_product.php?id=<?= $hotProduct->getID() ?>"
                             >
                                 <div class="home-product-media">
@@ -254,6 +264,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                                             data-price="<?= number_format(html_escape($hotProduct->pd_price)) . '₫' ?>"
                                             data-image="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>"
                                             data-sizes="<?= html_escape($hotProduct->pd_sizes ?? '') ?>"
+                                            data-stock="<?= html_escape($buildStockDataJson($product, (int) $hotProduct->getID())) ?>"
                                             data-link="detail_product.php?id=<?= $hotProduct->getID() ?>"
                                         >Xem nhanh</button>
                                     </div>
@@ -535,6 +546,33 @@ include_once __DIR__ .'/../src/partials/header.php'
                 });
             }
 
+            function parseStockMap(raw) {
+                if (!raw) {
+                    return {};
+                }
+                try {
+                    var parsed = JSON.parse(raw);
+                    return parsed && typeof parsed === 'object' ? parsed : {};
+                } catch (err) {
+                    return {};
+                }
+            }
+
+            function getFirstAvailableSize(sizes, stockMap) {
+                if (!Array.isArray(sizes) || !sizes.length) {
+                    return '';
+                }
+
+                for (var i = 0; i < sizes.length; i++) {
+                    var size = sizes[i];
+                    if (Number(stockMap[size] || 0) > 0) {
+                        return size;
+                    }
+                }
+
+                return '';
+            }
+
             async function quickAddToCart(productId, quantity, sizeCode) {
                 var data = new URLSearchParams();
                 data.set('themgiohang', '1');
@@ -666,7 +704,13 @@ include_once __DIR__ .'/../src/partials/header.php'
 
                         var rawSizes = card.getAttribute('data-product-sizes') || '';
                         var parsedSizes = rawSizes.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
-                        var selectedSize = parsedSizes.length ? parsedSizes[0] : 'Freezie';
+                        var stockMap = parseStockMap(card.getAttribute('data-product-stock') || '');
+                        var selectedSize = getFirstAvailableSize(parsedSizes, stockMap);
+
+                        if (!selectedSize) {
+                            window.alert('Sản phẩm đang hết hàng ở tất cả kích thước.');
+                            return;
+                        }
 
                         button.disabled = true;
                         var oldText = button.textContent;
@@ -734,6 +778,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                 var price = trigger.getAttribute('data-price') || '';
                 var image = trigger.getAttribute('data-image') || '';
                 var sizes = trigger.getAttribute('data-sizes') || '';
+                var stockRaw = trigger.getAttribute('data-stock') || '';
                 var link = trigger.getAttribute('data-link') || '#';
 
                 var titleEl = modal.querySelector('#homeQuickViewTitle');
@@ -746,6 +791,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                 var selectedSizeEl = modal.querySelector('#quickViewSelectedSize');
                 var sizeOptionsEl = modal.querySelector('#quickViewSizeOptions');
                 var qtyEl = modal.querySelector('#quickViewQty');
+                var statusTextEl = modal.querySelector('#quickViewStatusText');
 
                 if (titleEl) titleEl.textContent = name;
                 if (priceEl) priceEl.textContent = price;
@@ -757,6 +803,7 @@ include_once __DIR__ .'/../src/partials/header.php'
 
                 if (sizeOptionsEl) {
                     sizeOptionsEl.innerHTML = '';
+                    var stockMap = parseStockMap(stockRaw);
                     var parsedSizes = sizes.split(',').map(function(s) {
                         return s.trim();
                     }).filter(Boolean);
@@ -765,18 +812,31 @@ include_once __DIR__ .'/../src/partials/header.php'
                         parsedSizes = ['Freezie'];
                     }
 
-                    parsedSizes.forEach(function(size, index) {
+                    var firstAvailableSize = getFirstAvailableSize(parsedSizes, stockMap);
+
+                    parsedSizes.forEach(function(size) {
+                        var qty = Number(stockMap[size] || 0);
+                        var isOutOfStock = qty <= 0;
                         var btn = document.createElement('button');
                         btn.type = 'button';
-                        btn.className = 'quickview-size-btn' + (index === 0 ? ' active' : '');
-                        btn.textContent = size;
+                        btn.className = 'quickview-size-btn';
+                        if (isOutOfStock) {
+                            btn.classList.add('is-out-of-stock');
+                            btn.disabled = true;
+                        }
+                        if (!isOutOfStock && size === firstAvailableSize) {
+                            btn.classList.add('active');
+                        }
+                        btn.textContent = isOutOfStock ? (size + ' (Hết)') : size;
                         btn.setAttribute('data-size', size);
                         sizeOptionsEl.appendChild(btn);
                     });
 
-                    var firstSize = parsedSizes[0] || '';
-                    if (sizeInputEl) sizeInputEl.value = firstSize;
-                    if (selectedSizeEl) selectedSizeEl.textContent = firstSize || '-';
+                    if (sizeInputEl) sizeInputEl.value = firstAvailableSize || '';
+                    if (selectedSizeEl) selectedSizeEl.textContent = firstAvailableSize || '-';
+                    if (statusTextEl) {
+                        statusTextEl.textContent = firstAvailableSize ? 'Còn hàng' : 'Hết hàng';
+                    }
                 }
             });
 
@@ -788,6 +848,10 @@ include_once __DIR__ .'/../src/partials/header.php'
                 var qtyEl = modal.querySelector('#quickViewQty');
 
                 if (target && target.classList.contains('quickview-size-btn')) {
+                    if (target.disabled || target.classList.contains('is-out-of-stock')) {
+                        return;
+                    }
+
                     var wasActive = target.classList.contains('active');
                     modal.querySelectorAll('.quickview-size-btn').forEach(function(btn) {
                         btn.classList.remove('active');
@@ -852,8 +916,8 @@ include_once __DIR__ .'/../src/partials/header.php'
 
                     try {
                         var quickViewSize = sizeInputEl ? (sizeInputEl.value || 'Freezie') : 'Freezie';
-                        var ok = await quickAddToCart(productId, qty, quickViewSize);
-                        if (ok) {
+                        var result = await quickAddToCart(productId, qty, quickViewSize);
+                        if (result === 'success') {
                             var priceNum = parseInt((priceEl ? priceEl.textContent : '0').replace(/[^\d]/g, ''), 10) || 0;
                             var finalQty = updateMiniCart({
                                 id: productId,
@@ -876,6 +940,8 @@ include_once __DIR__ .'/../src/partials/header.php'
                             if (quickViewInstance) {
                                 quickViewInstance.hide();
                             }
+                        } else if (result === 'stock_insufficient') {
+                            window.alert('Sản phẩm đã hết hoặc không đủ tồn kho cho size này.');
                         } else {
                             window.alert('Không thể thêm vào giỏ. Vui lòng thử lại.');
                         }
