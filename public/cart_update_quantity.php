@@ -9,11 +9,21 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['quantity'])
     && isset($_POST['id_user']) && isset($_POST['id_pd'])
-    && ($item->find($_POST['id_user'], $_POST['id_pd'])) !== null
+    && ($item->find((int) $_POST['id_user'], (int) $_POST['id_pd'], (string) ($_POST['pd_size'] ?? ''))) !== null
     ){
 
-        $item->updateQuantity($_POST['quantity'], $_POST['id_user'], $_POST['id_pd']);
-        echo 'success';
+        $updated = (bool) $item->updateQuantity((int) $_POST['quantity'], (int) $_POST['id_user'], (int) $_POST['id_pd'], (string) ($_POST['pd_size'] ?? ''));
+        if ($updated) {
+            echo 'success';
+            exit;
+        }
+
+        if ($item->getLastErrorCode() === 'stock_insufficient') {
+            echo 'stock_insufficient';
+            exit;
+        }
+
+        echo 'unsuccess';
         exit;
     
     }

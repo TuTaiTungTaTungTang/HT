@@ -25,8 +25,12 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
     }
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
-        $orderInfor->updateStatus($_POST);
-        $_SESSION['flash_message'] = 'Cập nhật trạng thái đơn hàng thành công';
+        try {
+            $orderInfor->updateStatus($_POST);
+            $_SESSION['flash_message'] = 'Cập nhật trạng thái đơn hàng thành công';
+        } catch (Throwable $th) {
+            $_SESSION['flash_error'] = 'Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại.';
+        }
     }
 
     $statusOptions = Order::statusOptions();
@@ -44,6 +48,12 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
                 <?= $_SESSION['flash_message'] ?>
             </div>
             <?php unset($_SESSION['flash_message']) ?>
+        <?php endif ?>
+        <?php if(isset($_SESSION['flash_error'])): ?>
+            <div class="text-danger text-center fw-semibold">
+                <?= $_SESSION['flash_error'] ?>
+            </div>
+            <?php unset($_SESSION['flash_error']) ?>
         <?php endif ?>
 
         <table class="mb-4">
@@ -94,6 +104,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
                 <tr class="text-center">
                     <!-- <th scope="col">STT</th> -->
                     <th scope="col">Tên sản phẩm</th>
+                    <th scope="col">Size</th>
                     <th scope="col">Giá</th>
                     <th scope="col">Số lượng</th>
                     <th scope="col">Thành tiền</th>
@@ -112,6 +123,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
                         <?= html_escape($pd->getNamePd())?>
                     </td>
 
+                    <td><?= html_escape($pd->pd_size ?? 'Freezie') ?></td>
+
                     <!-- Giá -->
                     <td class="text-end"><?= number_format($pd->getPricePd()) . '₫' ?></td>
 
@@ -124,7 +137,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
                 </tr>
                 <?php endforeach ?>
                 <tr>
-                    <td colspan="4"><b>Tổng tiền:</b> <?= number_format($tongtien) . '₫' ?></td>
+                    <td colspan="5"><b>Tổng tiền:</b> <?= number_format($tongtien) . '₫' ?></td>
                 </tr>
 
                

@@ -10,17 +10,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['themgiohang']) && iss
 
     $item->fill($_POST);
     $result = false;
+    $responseCode = 'unsuccess';
     if ($item->exist()) {
         $result = (bool) $item->plus($quantity);
     } else {
         $result = (bool) $item->save($quantity);
     }
 
+    if ($result) {
+        $responseCode = 'success';
+    } elseif ($item->getLastErrorCode() === 'stock_insufficient') {
+        $responseCode = 'stock_insufficient';
+    }
+
     $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH'])
         && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
     if ($isAjax) {
-        echo $result ? 'success' : 'unsuccess';
+        echo $responseCode;
         exit;
     }
 

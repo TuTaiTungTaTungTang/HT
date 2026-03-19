@@ -8,7 +8,7 @@ $item = new Cart($PDO);
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['id_user']) && isset($_POST['id_pd'])
-    && ($item->find($_POST['id_user'], $_POST['id_pd'])) !== null
+    && ($item->find((int) $_POST['id_user'], (int) $_POST['id_pd'], (string) ($_POST['pd_size'] ?? ''))) !== null
 ) {
     $id = $_POST['id_user'];
     $deleted = $item->delete();

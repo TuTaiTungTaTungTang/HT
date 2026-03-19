@@ -94,6 +94,9 @@ if ($isUserLoggedIn && isset($PDO)) {
 
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') : ?>
                         <li class="nav-item mx-4">
+                            <a class="nav-link active" aria-current="page" href="stock_size_list.php">QUẢN LÝ TỒN KHO</a>
+                        </li>
+                        <li class="nav-item mx-4">
                             <a class="nav-link active" aria-current="page" href="user_list.php">QUẢN LÝ USER</a>
                         </li>
                     <?php endif; ?>
@@ -206,10 +209,11 @@ if ($isUserLoggedIn && isset($PDO)) {
                         </div>
                     <?php else : ?>
                         <?php foreach ($miniCartItems as $miniCartItem) : ?>
-                            <div class="mini-cart-item" data-pd-id="<?= (int) $miniCartItem->getIDPro() ?>" data-price="<?= (int) $miniCartItem->pd_price ?>">
+                            <div class="mini-cart-item" data-pd-id="<?= (int) $miniCartItem->getIDPro() ?>" data-pd-size="<?= html_escape($miniCartItem->getSize()) ?>" data-price="<?= (int) $miniCartItem->pd_price ?>">
                                 <img src="/onlinestore/public/uploads/<?= html_escape($miniCartItem->pd_image) ?>" alt="<?= html_escape($miniCartItem->pd_name) ?>" class="mini-cart-thumb">
                                 <div class="mini-cart-info">
                                     <p class="mini-cart-name"><?= html_escape($miniCartItem->pd_name) ?></p>
+                                    <p class="mini-cart-size">Size: <?= html_escape($miniCartItem->getSize()) ?></p>
                                     <div class="mini-cart-qty-wrap">
                                         <button type="button" class="mini-cart-qty-btn decrement">&#8722;</button>
                                         <input type="number" class="mini-cart-qty" value="<?= (int) $miniCartItem->pd_quantity ?>" min="1" max="99" readonly>
@@ -369,6 +373,7 @@ if ($isUserLoggedIn && isset($PDO)) {
 
                 var userId = cartModalEl.querySelector('.mini-cart-content').getAttribute('data-user-id');
                 var pdId = itemEl.getAttribute('data-pd-id');
+                var pdSize = itemEl.getAttribute('data-pd-size') || '';
                 var qtyEl = itemEl.querySelector('.mini-cart-qty');
                 if (!userId || !pdId || !qtyEl) {
                     return;
@@ -389,10 +394,13 @@ if ($isUserLoggedIn && isset($PDO)) {
                         data.set('quantity', String(next));
                         data.set('id_user', String(userId));
                         data.set('id_pd', String(pdId));
+                        data.set('pd_size', String(pdSize));
                         var result = await postForm('/onlinestore/public/cart_update_quantity.php', data);
                         if (result.trim() === 'success') {
                             qtyEl.value = String(next);
                             recalcMiniCart();
+                        } else if (result.trim() === 'stock_insufficient') {
+                            window.alert('Số lượng vượt quá tồn kho hiện tại cho size đã chọn.');
                         }
                     }
                 }
@@ -401,6 +409,7 @@ if ($isUserLoggedIn && isset($PDO)) {
                     var deleteData = new URLSearchParams();
                     deleteData.set('id_user', String(userId));
                     deleteData.set('id_pd', String(pdId));
+                    deleteData.set('pd_size', String(pdSize));
                     var deleteResult = await postForm('/onlinestore/public/cart_delete.php', deleteData);
                     if (deleteResult.trim() === 'success') {
                         itemEl.remove();

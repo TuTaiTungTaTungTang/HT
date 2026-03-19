@@ -100,6 +100,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                         data-product-name="<?= html_escape($promoProduct->pd_name) ?>"
                         data-product-price="<?= number_format(html_escape($promoProduct->pd_price)) . '₫' ?>"
                         data-product-image="<?= './uploads/' . html_escape($promoProduct->pd_image) ?>"
+                        data-product-sizes="<?= html_escape($promoProduct->pd_sizes ?? '') ?>"
                         data-product-link="detail_product.php?id=<?= $promoProduct->getID() ?>"
                     >
                         <div class="home-product-media">
@@ -164,6 +165,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                         data-product-name="<?= html_escape($bestProduct->pd_name) ?>"
                         data-product-price="<?= number_format(html_escape($bestProduct->pd_price)) . '₫' ?>"
                         data-product-image="<?= './uploads/' . html_escape($bestProduct->pd_image) ?>"
+                        data-product-sizes="<?= html_escape($bestProduct->pd_sizes ?? '') ?>"
                         data-product-link="detail_product.php?id=<?= $bestProduct->getID() ?>"
                     >
                         <div class="home-product-media">
@@ -230,6 +232,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                                 data-product-name="<?= html_escape($hotProduct->pd_name) ?>"
                                 data-product-price="<?= number_format(html_escape($hotProduct->pd_price)) . '₫' ?>"
                                 data-product-image="<?= './uploads/' . html_escape($hotProduct->pd_image) ?>"
+                                data-product-sizes="<?= html_escape($hotProduct->pd_sizes ?? '') ?>"
                                 data-product-link="detail_product.php?id=<?= $hotProduct->getID() ?>"
                             >
                                 <div class="home-product-media">
@@ -532,12 +535,13 @@ include_once __DIR__ .'/../src/partials/header.php'
                 });
             }
 
-            async function quickAddToCart(productId, quantity) {
+            async function quickAddToCart(productId, quantity, sizeCode) {
                 var data = new URLSearchParams();
                 data.set('themgiohang', '1');
                 data.set('idsanpham', String(productId));
                 data.set('iduser', String(currentUserId));
                 data.set('quantity', String(quantity || 1));
+                data.set('pd_size', String(sizeCode || 'Freezie'));
 
                 var response = await fetch('/onlinestore/public/cart_add.php', {
                     method: 'POST',
@@ -549,7 +553,7 @@ include_once __DIR__ .'/../src/partials/header.php'
                 });
 
                 var text = await response.text();
-                return text.trim() === 'success';
+                return text.trim();
             }
 
             function showAddCartSuccess(payload) {
@@ -583,13 +587,14 @@ include_once __DIR__ .'/../src/partials/header.php'
                 }
 
                 var id = payload.id || '';
+                var size = payload.size || 'Freezie';
                 var name = payload.name || '';
                 var image = payload.image || '';
                 var price = parseInt(String(payload.price || 0), 10);
                 var quantity = payload.quantity || 1;
                 var finalQty = quantity;
 
-                var existed = miniCartList.querySelector('.mini-cart-item[data-pd-id="' + id + '"]');
+                var existed = miniCartList.querySelector('.mini-cart-item[data-pd-id="' + id + '"][data-pd-size="' + size + '"]');
                 if (existed) {
                     var qtyInput = existed.querySelector('.mini-cart-qty');
                     var linePriceEl = existed.querySelector('.mini-cart-line-price');
@@ -609,11 +614,13 @@ include_once __DIR__ .'/../src/partials/header.php'
                     var item = document.createElement('div');
                     item.className = 'mini-cart-item';
                     item.setAttribute('data-pd-id', id || '');
+                    item.setAttribute('data-pd-size', size);
                     item.setAttribute('data-price', String(price));
                     item.innerHTML = '' +
                         '<img src="' + image + '" alt="' + name.replace(/"/g, '&quot;') + '" class="mini-cart-thumb">' +
                         '<div class="mini-cart-info">' +
                             '<p class="mini-cart-name">' + name + '</p>' +
+                            '<p class="mini-cart-size">Size: ' + size + '</p>' +
                             '<div class="mini-cart-qty-wrap">' +
                                 '<button type="button" class="mini-cart-qty-btn decrement">&#8722;</button>' +
                                 '<input type="number" class="mini-cart-qty" value="' + quantity + '" min="1" max="99" readonly>' +
@@ -657,16 +664,21 @@ include_once __DIR__ .'/../src/partials/header.php'
                             return;
                         }
 
+                        var rawSizes = card.getAttribute('data-product-sizes') || '';
+                        var parsedSizes = rawSizes.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+                        var selectedSize = parsedSizes.length ? parsedSizes[0] : 'Freezie';
+
                         button.disabled = true;
                         var oldText = button.textContent;
                         button.textContent = 'Đang thêm...';
 
                         try {
-                            var ok = await quickAddToCart(productId, 1);
-                            if (ok) {
+                            var result = await quickAddToCart(productId, 1, selectedSize);
+                            if (result === 'success') {
                                 var rawPrice = (card.getAttribute('data-product-price') || '').replace(/[^\d]/g, '');
                                 var payload = {
                                     id: productId,
+                                    size: selectedSize,
                                     name: card.getAttribute('data-product-name') || '',
                                     image: card.getAttribute('data-product-image') || '',
                                     price: parseInt(rawPrice || '0', 10),
@@ -684,6 +696,9 @@ include_once __DIR__ .'/../src/partials/header.php'
                                 setTimeout(function() {
                                     button.textContent = oldText;
                                 }, 900);
+                            } else if (result === 'stock_insufficient') {
+                                window.alert('Sản phẩm đã hết hoặc không đủ tồn kho cho size này.');
+                                button.textContent = oldText;
                             } else {
                                 button.textContent = 'Lỗi thêm giỏ';
                                 setTimeout(function() {
@@ -836,11 +851,13 @@ include_once __DIR__ .'/../src/partials/header.php'
                     }
 
                     try {
-                        var ok = await quickAddToCart(productId, qty);
+                        var quickViewSize = sizeInputEl ? (sizeInputEl.value || 'Freezie') : 'Freezie';
+                        var ok = await quickAddToCart(productId, qty, quickViewSize);
                         if (ok) {
                             var priceNum = parseInt((priceEl ? priceEl.textContent : '0').replace(/[^\d]/g, ''), 10) || 0;
                             var finalQty = updateMiniCart({
                                 id: productId,
+                                size: quickViewSize,
                                 name: nameEl ? nameEl.textContent : '',
                                 image: imageEl ? imageEl.src : '',
                                 price: priceNum,

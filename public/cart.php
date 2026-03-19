@@ -23,20 +23,14 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
         $item->fillInfo($_POST);
         if ($item->validateInfo()) {
             $order = new Order($PDO);
-            $user_id = $_POST['thanhtoan_id_user'];
-            $mahang = rand(0, 9999);
-            $cartpds = $order->allPdFromCart($user_id);
-            $allSaved = !empty($cartpds);
-            foreach ($cartpds as $cartpd) {
-                $order->fill($mahang, $user_id, $cartpd, $_POST);
-                if (!$order->save()) {
-                    $allSaved = false;
-                }
-            }
-            if ($allSaved && $item->clearByUser((int) $user_id)) {
+            $user_id = (int) ($_POST['thanhtoan_id_user'] ?? 0);
+            $placeOrderResult = $order->placeOrderFromCart($user_id, (string) $_POST['address'], (string) $_POST['phone']);
+            if (!empty($placeOrderResult['success'])) {
                 $_SESSION['successful-order-message'] = "Đặt hàng thành công! Quý khách vui lòng kiểm tra email để xem chi tiết đơn hàng";
                 redirect('cart.php');
             }
+
+            $errors['stock'] = (string) ($placeOrderResult['message'] ?? 'Không thể đặt hàng, vui lòng thử lại.');
         }
 
         $errors = $item->getValidationErrors();
@@ -68,6 +62,11 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
             </div>
             <?php unset($_SESSION['successful-order-message']) ?>
         <?php endif ?>
+        <?php if (isset($errors['stock'])) : ?>
+            <div class="text-danger text-center fw-semibold mb-3">
+                <?= html_escape($errors['stock']) ?>
+            </div>
+        <?php endif ?>
         <div class="row">
             <div class="col-12">
 
@@ -77,6 +76,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                         <tr class="text-center">
                             <th scope="col"></th>
                             <th scope="col">Tên sản phẩm</th>
+                            <th scope="col">Size</th>
                             <th scope="col">Số lượng</th>
                             <th scope="col">Giá</th>
                             <th scope="col">Tổng giá</th>
@@ -95,6 +95,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                                     <img src="<?= './uploads/' . html_escape($item->pd_image) ?>" alt="" width="100" height="100" class="cart-thumb">
                                 </td>
                                 <td><?= html_escape($item->pd_name) ?></td>
+                                <td><?= html_escape($item->getSize()) ?></td>
                                 <td>
 
                                     <!-- Số lượng sản phẩm -->
@@ -102,6 +103,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                                         <button class="input-group-text btn btn-success decrement_btn fs-4 fw-bold">–</button>
                                         <input type="hidden" class="id-user" value="<?= $item->getIDUser() ?>">
                                         <input type="hidden" class="id-pd" value="<?= $item->getIDPro() ?>">
+                                        <input type="hidden" class="pd-size" value="<?= html_escape($item->getSize()) ?>">
                                         <input type="number" min="1" max="20" disabled name="quantity" class="pd_qty text-center" value="<?= number_format(html_escape($item->pd_quantity)) ?>">
                                         <button class="input-group-text btn btn-success increment_btn fs-4 fw-bold">+</button>
                                     </div>
@@ -113,6 +115,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                                     <form action="cart_delete.php" method="POST" class="form-inline ml-1">
                                         <input type="hidden" name="id_user" value="<?= $item->getIDUser() ?>">
                                         <input type="hidden" name="id_pd" value="<?= $item->getIDPro() ?>">
+                                        <input type="hidden" name="pd_size" value="<?= html_escape($item->getSize()) ?>">
                                         <button type="submit" name="delete-cart-item" class="btn btn-danger fs-5" data-bs-toggle="modal" data-bs-target="#delete-confirm">
                                             <i alt='Delete' class="fa fa-trash"></i> Xóa
                                         </button>
@@ -230,6 +233,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                 var parentDiv = $(this).closest('.d-flex');
                 var user_id = parentDiv.find('.id-user').val();
                 var pd_id = parentDiv.find('.id-pd').val();
+                var pd_size = parentDiv.find('.pd-size').val();
                 var qtyInput = parentDiv.find('.pd_qty');
                 var qty = qtyInput.val();
                 var max = qtyInput.attr('max');
@@ -241,7 +245,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                 if (value < max) {
                     value++;
                     qtyInput.val(value);
-                    updateQuantity(value, user_id, pd_id);
+                    updateQuantity(value, user_id, pd_id, pd_size);
                 }
             });
 
@@ -251,6 +255,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                 var parentDiv = $(this).closest('.d-flex');
                 var user_id = parentDiv.find('.id-user').val();
                 var pd_id = parentDiv.find('.id-pd').val();
+                var pd_size = parentDiv.find('.pd-size').val();
                 var qtyInput = parentDiv.find('.pd_qty');
                 var qty = qtyInput.val();
                 var min = qtyInput.attr('min');
@@ -260,24 +265,27 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
                 if (value > min) {
                     value--;
                     qtyInput.val(value);
-                    updateQuantity(value, user_id, pd_id);
+                    updateQuantity(value, user_id, pd_id, pd_size);
                 }
             });
 
-            function updateQuantity(quantity, user, pd) {
+            function updateQuantity(quantity, user, pd, size) {
                 $.ajax({
                     url: 'cart_update_quantity.php',
                     type: 'POST',
                     data: {
                         quantity: quantity,
                         id_user: user,
-                        id_pd: pd
+                        id_pd: pd,
+                        pd_size: size
                     },
                     success: function(response) {
                         //console.log(response); 
                         if (response === 'success') {
                             window.location.href = 'cart.php?id=' + user;
-
+                        } else if (response === 'stock_insufficient') {
+                            window.alert('Số lượng vượt quá tồn kho hiện tại cho size đã chọn.');
+                            window.location.href = 'cart.php?id=' + user;
                         } else {
                             window.location.href = '/';
                         }

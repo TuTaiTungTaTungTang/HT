@@ -226,12 +226,13 @@ include_once __DIR__ . '/../src/partials/header.php'
                 }
 
                 var productId = addCartForm.querySelector('input[name="idsanpham"]').value;
+                var productSize = addCartForm.querySelector('input[name="pd_size"]') ? (addCartForm.querySelector('input[name="pd_size"]').value || 'Freezie') : 'Freezie';
                 var productName = document.querySelector('.title_product') ? document.querySelector('.title_product').textContent.trim() : '';
                 var productImage = document.querySelector('.img_product') ? document.querySelector('.img_product').getAttribute('src') : '';
                 var productPriceText = document.querySelector('.price_product') ? document.querySelector('.price_product').textContent.trim() : '0₫';
                 var productPrice = parseInt(productPriceText.replace(/[^\d]/g, ''), 10) || 0;
 
-                var existed = miniCartList.querySelector('.mini-cart-item[data-pd-id="' + productId + '"]');
+                var existed = miniCartList.querySelector('.mini-cart-item[data-pd-id="' + productId + '"][data-pd-size="' + productSize + '"]');
                 var finalQty = quantity;
 
                 if (existed) {
@@ -253,11 +254,13 @@ include_once __DIR__ . '/../src/partials/header.php'
                     var item = document.createElement('div');
                     item.className = 'mini-cart-item';
                     item.setAttribute('data-pd-id', productId);
+                    item.setAttribute('data-pd-size', productSize);
                     item.setAttribute('data-price', String(productPrice));
                     item.innerHTML = '' +
                         '<img src="' + productImage + '" alt="' + productName.replace(/"/g, '&quot;') + '" class="mini-cart-thumb">' +
                         '<div class="mini-cart-info">' +
                             '<p class="mini-cart-name">' + productName + '</p>' +
+                            '<p class="mini-cart-size">Size: ' + productSize + '</p>' +
                             '<div class="mini-cart-qty-wrap">' +
                                 '<button type="button" class="mini-cart-qty-btn decrement">&#8722;</button>' +
                                 '<input type="number" class="mini-cart-qty" value="' + quantity + '" min="1" max="99" readonly>' +
@@ -327,6 +330,8 @@ include_once __DIR__ . '/../src/partials/header.php'
                                 if (qtyEl) qtyEl.textContent = String(finalQty);
                                 successModal.show();
                             }
+                        } else if (text === 'stock_insufficient') {
+                            window.alert('Sản phẩm đã hết hoặc không đủ tồn kho cho size này.');
                         } else {
                             window.alert('Không thể thêm vào giỏ. Vui lòng thử lại.');
                         }

@@ -109,3 +109,108 @@ function remove_image_file(string $filename): bool {
     
     return false;
 }
+
+function ensure_product_size_stock_table(PDO $pdo): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    $checked = true;
+
+    $pdo->exec('CREATE TABLE IF NOT EXISTS product_size_stock (
+        stock_id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+        pd_id INT(11) UNSIGNED NOT NULL,
+        size_code VARCHAR(20) NOT NULL,
+        quantity INT(11) NOT NULL DEFAULT 0,
+        PRIMARY KEY (stock_id),
+        UNIQUE KEY uniq_pd_size (pd_id, size_code),
+        CONSTRAINT fk_stock_product FOREIGN KEY (pd_id) REFERENCES products(pd_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB');
+
+    $allowedSizes = ['XS', 'M', 'L', 'Freezie'];
+    $productRows = $pdo->query('SELECT pd_id, pd_sizes FROM products');
+    if (!$productRows) {
+        return;
+    }
+
+    $insertStatement = $pdo->prepare('INSERT IGNORE INTO product_size_stock (pd_id, size_code, quantity) VALUES (:pd_id, :size_code, 0)');
+
+    while ($row = $productRows->fetch(PDO::FETCH_ASSOC)) {
+        $productId = (int) ($row['pd_id'] ?? 0);
+        if ($productId <= 0) {
+            continue;
+        }
+
+        $sizes = array_filter(array_map('trim', explode(',', (string) ($row['pd_sizes'] ?? ''))));
+        foreach ($sizes as $sizeCode) {
+            if (!in_array($sizeCode, $allowedSizes, true)) {
+                continue;
+            }
+
+            $insertStatement->execute([
+                'pd_id' => $productId,
+                'size_code' => $sizeCode,
+            ]);
+        }
+    }
+}
+
+function ensure_cart_order_size_columns(PDO $pdo): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    $checked = true;
+
+    try {
+        $pdo->exec("ALTER TABLE carts ADD COLUMN pd_size VARCHAR(20) NOT NULL DEFAULT 'Freezie' AFTER pd_id");
+    } catch (Throwable $th) {
+        // Ignore duplicate-column errors when schema is already up-to-date.
+    }
+
+    try {
+        $pdo->exec("ALTER TABLE orders ADD COLUMN pd_size VARCHAR(20) NOT NULL DEFAULT 'Freezie' AFTER pd_id");
+    } catch (Throwable $th) {
+        // Ignore duplicate-column errors when schema is already up-to-date.
+    }
+
+    try {
+        $pdo->exec("ALTER TABLE orders ADD COLUMN stock_deducted TINYINT(1) NOT NULL DEFAULT 0 AFTER pd_quantity");
+    } catch (Throwable $th) {
+        // Ignore duplicate-column errors when schema is already up-to-date.
+    }
+
+    try {
+        $pdo->exec("ALTER TABLE orders ADD COLUMN stock_returned TINYINT(1) NOT NULL DEFAULT 0 AFTER stock_deducted");
+    } catch (Throwable $th) {
+        // Ignore duplicate-column errors when schema is already up-to-date.
+    }
+
+    $pdo->exec("UPDATE carts SET pd_size = 'Freezie' WHERE pd_size IS NULL OR TRIM(pd_size) = ''");
+    $pdo->exec("UPDATE orders SET pd_size = 'Freezie' WHERE pd_size IS NULL OR TRIM(pd_size) = ''");
+
+    $pkColumns = [];
+    $pkRows = [];
+    $pkStatement = $pdo->query("SHOW INDEX FROM carts WHERE Key_name = 'PRIMARY'");
+    if ($pkStatement) {
+        while ($row = $pkStatement->fetch(PDO::FETCH_ASSOC)) {
+            $pkRows[] = $row;
+        }
+    }
+
+    usort($pkRows, static function (array $a, array $b): int {
+        return ((int) ($a['Seq_in_index'] ?? 0)) <=> ((int) ($b['Seq_in_index'] ?? 0));
+    });
+
+    foreach ($pkRows as $pkRow) {
+        $pkColumns[] = (string) ($pkRow['Column_name'] ?? '');
+    }
+
+    if ($pkColumns !== ['user_id', 'pd_id', 'pd_size']) {
+        $pdo->exec('ALTER TABLE carts DROP PRIMARY KEY, ADD PRIMARY KEY (user_id, pd_id, pd_size)');
+    }
+}

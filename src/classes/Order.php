@@ -10,6 +10,7 @@ class Order
     private $order_code;
     private $user_id;
     private $pd_id;
+    public $pd_size = '';
     public $quantity;
     public $price;
     public $address;
@@ -66,11 +67,22 @@ class Order
         return $map[$statusCode] ?? null;
     }
 
+    private function isReturnOrCancelStatus(int $status): bool
+    {
+        return in_array($status, [4, 5], true);
+    }
+
     public function fill($code, $user, $pd, $data) : Order
     {
+        $sizeCode = isset($data['pd_size']) ? trim((string) $data['pd_size']) : '';
+        if ($sizeCode === '') {
+            $sizeCode = 'Freezie';
+        }
+
         $this->order_code = $code ?? '';
         $this->user_id = $user ?? '';
         $this->pd_id = $pd ?? '';
+        $this->pd_size = $sizeCode;
         $this->address = $data['address'] ?? '';
         $this->phone = $data['phone'] ?? '';
         $statement = $this->db->prepare('SELECT * FROM products where pd_id = ?');
@@ -79,8 +91,8 @@ class Order
             $this->price = $row['pd_price'] ?? 0;
         }
 
-        $statement = $this->db->prepare('SELECT * FROM carts where user_id = ? and pd_id = ?');
-        $statement->execute([$user, $pd]);
+        $statement = $this->db->prepare('SELECT * FROM carts where user_id = ? and pd_id = ? and pd_size = ?');
+        $statement->execute([$user, $pd, $this->pd_size]);
         if($row = $statement->fetch()){
         $this->quantity = $row['pd_quantity'] ?? 0;
         }
@@ -93,11 +105,14 @@ class Order
     public function allPdFromCart(int $user): array
     {
         $items = [];
-        $statement = $this->db->prepare('SELECT * FROM carts where user_id = ?');
+        $statement = $this->db->prepare('SELECT pd_id, pd_size, pd_quantity FROM carts where user_id = ?');
         $statement->execute([$user]);
-        while ($row = $statement->fetch()) {
-            $item = $row['pd_id'];
-            $items[] = $item;
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $items[] = [
+                'pd_id' => (int) ($row['pd_id'] ?? 0),
+                'pd_size' => trim((string) ($row['pd_size'] ?? '')),
+                'pd_quantity' => max(0, (int) ($row['pd_quantity'] ?? 0)),
+            ];
         }
         
         return $items;
@@ -154,6 +169,7 @@ class Order
             'address' => $this->address,
             'phone' => $this->phone,
             'pd_id' => $this->pd_id,
+            'pd_size' => $this->pd_size,
             'order_total' =>$this->order_total,
             'order_status' => $this->order_status
         ] = $row;
@@ -163,9 +179,94 @@ class Order
 
     public function save() : int {
         $result = 0;
-        $statement = $this->db->prepare('insert into orders(order_code, user_id, address, phone, pd_id, pd_quantity, order_total) values (?,?,?,?,?,?,?)');
-        $result = $statement->execute([$this->order_code, $this->user_id, $this->address, $this->phone, $this->pd_id, $this->quantity, $this->order_total]);
+        $statement = $this->db->prepare('insert into orders(order_code, user_id, address, phone, pd_id, pd_size, pd_quantity, stock_deducted, stock_returned, order_total) values (?,?,?,?,?,?,?,?,?,?)');
+        $result = $statement->execute([$this->order_code, $this->user_id, $this->address, $this->phone, $this->pd_id, $this->pd_size, $this->quantity, 1, 0, $this->order_total]);
         return $result;
+    }
+
+    public function placeOrderFromCart(int $userId, string $address, string $phone): array
+    {
+        $address = trim($address);
+        $phone = trim($phone);
+        if ($userId <= 0) {
+            return ['success' => false, 'message' => 'Không xác định người dùng.'];
+        }
+
+        $cartItemsStmt = $this->db->prepare('SELECT c.pd_id, c.pd_size, c.pd_quantity, p.pd_name, p.pd_price
+                                             FROM carts c
+                                             INNER JOIN products p ON p.pd_id = c.pd_id
+                                             WHERE c.user_id = :user_id');
+        $cartItemsStmt->execute(['user_id' => $userId]);
+        $cartItems = $cartItemsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($cartItems)) {
+            return ['success' => false, 'message' => 'Giỏ hàng của bạn đang trống.'];
+        }
+
+        $allowedSizes = Product::allowedSizes();
+        $orderCode = random_int(1000, 999999);
+
+        try {
+            $this->db->beginTransaction();
+
+            $stockLockStmt = $this->db->prepare('SELECT quantity FROM product_size_stock WHERE pd_id = :pd_id AND size_code = :size_code FOR UPDATE');
+            $stockUpdateStmt = $this->db->prepare('UPDATE product_size_stock SET quantity = quantity - :deduct WHERE pd_id = :pd_id AND size_code = :size_code AND quantity >= :deduct');
+            $insertOrderStmt = $this->db->prepare('INSERT INTO orders(order_code, user_id, address, phone, pd_id, pd_size, pd_quantity, stock_deducted, stock_returned, order_total) VALUES (:order_code, :user_id, :address, :phone, :pd_id, :pd_size, :pd_quantity, 1, 0, :order_total)');
+
+            foreach ($cartItems as $cartItem) {
+                $productId = (int) ($cartItem['pd_id'] ?? 0);
+                $sizeCode = trim((string) ($cartItem['pd_size'] ?? ''));
+                $quantity = max(1, (int) ($cartItem['pd_quantity'] ?? 0));
+                $productName = (string) ($cartItem['pd_name'] ?? 'Sản phẩm');
+                $price = (int) ($cartItem['pd_price'] ?? 0);
+
+                if (!in_array($sizeCode, $allowedSizes, true)) {
+                    throw new \RuntimeException('Kích thước không hợp lệ cho sản phẩm: ' . $productName . '.');
+                }
+
+                $stockLockStmt->execute([
+                    'pd_id' => $productId,
+                    'size_code' => $sizeCode,
+                ]);
+                $stockRow = $stockLockStmt->fetch(PDO::FETCH_ASSOC);
+                $available = $stockRow ? max(0, (int) ($stockRow['quantity'] ?? 0)) : 0;
+                if ($available < $quantity) {
+                    throw new \RuntimeException('Không đủ tồn kho cho "' . $productName . '" (size ' . $sizeCode . '). Còn lại: ' . $available . '.');
+                }
+
+                $stockUpdateStmt->execute([
+                    'deduct' => $quantity,
+                    'pd_id' => $productId,
+                    'size_code' => $sizeCode,
+                ]);
+                if ($stockUpdateStmt->rowCount() <= 0) {
+                    throw new \RuntimeException('Không thể cập nhật tồn kho cho "' . $productName . '" (size ' . $sizeCode . ').');
+                }
+
+                $insertOrderStmt->execute([
+                    'order_code' => $orderCode,
+                    'user_id' => $userId,
+                    'address' => $address,
+                    'phone' => $phone,
+                    'pd_id' => $productId,
+                    'pd_size' => $sizeCode,
+                    'pd_quantity' => $quantity,
+                    'order_total' => $price * $quantity,
+                ]);
+            }
+
+            $clearStmt = $this->db->prepare('DELETE FROM carts WHERE user_id = :user_id');
+            $clearStmt->execute(['user_id' => $userId]);
+
+            $this->db->commit();
+            return ['success' => true, 'message' => 'Đặt hàng thành công!', 'order_code' => $orderCode];
+        } catch (\Throwable $th) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            return ['success' => false, 'message' => $th->getMessage() ?: 'Không thể đặt hàng, vui lòng thử lại.'];
+        }
     }
 
     public function getStatus($code): int{
@@ -199,13 +300,55 @@ class Order
             $nextStatus = 0;
         }
 
-        $statement = $this->db->prepare('update orders set order_status = ?  where order_code = ?');
-        $statement->execute([$nextStatus, $this->order_code]); 
+        try {
+            $this->db->beginTransaction();
 
-        $statement = $this->db->prepare('select distinct order_status from orders where order_code = ?');
-        $statement->execute([$this->order_code]); 
-        if($row = $statement->fetch()){
-            $this->order_status = $row['order_status'];
+            $statement = $this->db->prepare('SELECT order_status FROM orders WHERE order_code = ? LIMIT 1 FOR UPDATE');
+            $statement->execute([$this->order_code]);
+            $currentStatus = 0;
+            if ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+                $currentStatus = (int) ($row['order_status'] ?? 0);
+            }
+
+            $statement = $this->db->prepare('update orders set order_status = ? where order_code = ?');
+            $statement->execute([$nextStatus, $this->order_code]);
+
+            if (!$this->isReturnOrCancelStatus($currentStatus) && $this->isReturnOrCancelStatus($nextStatus)) {
+                $restoreRowsStmt = $this->db->prepare('SELECT pd_id, pd_size, pd_quantity FROM orders WHERE order_code = :order_code AND stock_deducted = 1 AND stock_returned = 0 FOR UPDATE');
+                $restoreRowsStmt->execute([
+                    'order_code' => $this->order_code,
+                ]);
+                $restoreRows = $restoreRowsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (!empty($restoreRows)) {
+                    $restoreStockStmt = $this->db->prepare('INSERT INTO product_size_stock (pd_id, size_code, quantity) VALUES (:pd_id, :size_code, :quantity) ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)');
+                    foreach ($restoreRows as $restoreRow) {
+                        $restoreStockStmt->execute([
+                            'pd_id' => (int) ($restoreRow['pd_id'] ?? 0),
+                            'size_code' => (string) ($restoreRow['pd_size'] ?? 'Freezie'),
+                            'quantity' => max(0, (int) ($restoreRow['pd_quantity'] ?? 0)),
+                        ]);
+                    }
+
+                    $markRestoredStmt = $this->db->prepare('UPDATE orders SET stock_returned = 1 WHERE order_code = :order_code AND stock_deducted = 1 AND stock_returned = 0');
+                    $markRestoredStmt->execute([
+                        'order_code' => $this->order_code,
+                    ]);
+                }
+            }
+
+            $statement = $this->db->prepare('select distinct order_status from orders where order_code = ?');
+            $statement->execute([$this->order_code]);
+            if($row = $statement->fetch()){
+                $this->order_status = $row['order_status'];
+            }
+
+            $this->db->commit();
+        } catch (\Throwable $th) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $th;
         }
 
     }
@@ -213,12 +356,13 @@ class Order
 
     public function allPd(int $code): array {
         $pds = [];
-        $statement = $this->db->prepare('select pd_id, pd_quantity from orders where order_code = ?');
+        $statement = $this->db->prepare('select pd_id, pd_size, pd_quantity from orders where order_code = ?');
         $statement->execute([$code]); 
         while($row = $statement->fetch()){
             $pd = new Order($this->db);
             $pd->order_code = $code;
             $pd->pd_id = $row['pd_id'];
+            $pd->pd_size = $row['pd_size'] ?? 'Freezie';
             $pd->quantity = $row['pd_quantity'];
             $pds[] = $pd; 
         }
@@ -351,7 +495,7 @@ class Order
     public function itemsByCodeAndUser(int $orderCode, int $userId): array
     {
         $items = [];
-        $statement = $this->db->prepare('SELECT o.pd_id, o.pd_quantity, o.order_total, p.pd_name, p.pd_price
+        $statement = $this->db->prepare('SELECT o.pd_id, o.pd_size, o.pd_quantity, o.order_total, p.pd_name, p.pd_price
                                          FROM orders o
                                          LEFT JOIN products p ON p.pd_id = o.pd_id
                                          WHERE o.order_code = :order_code AND o.user_id = :user_id');

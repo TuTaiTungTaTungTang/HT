@@ -20,3 +20,7 @@ try{
     exit("<pre>$ex</pre>");
 
 }
+
+ensure_user_profile_columns($PDO);
+ensure_product_size_stock_table($PDO);
+ensure_cart_order_size_columns($PDO);

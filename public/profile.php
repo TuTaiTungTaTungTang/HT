@@ -273,7 +273,7 @@ include_once __DIR__ . '/../src/partials/header.php';
                                             <div class="user-order-items">
                                                 <?php foreach ($orderItems as $orderItem) : ?>
                                                     <div class="user-order-item-row">
-                                                        <span><?= html_escape((string) $orderItem['pd_name']) ?> x <?= (int) $orderItem['pd_quantity'] ?></span>
+                                                        <span><?= html_escape((string) $orderItem['pd_name']) ?> (Size: <?= html_escape((string) ($orderItem['pd_size'] ?? 'Freezie')) ?>) x <?= (int) $orderItem['pd_quantity'] ?></span>
                                                         <strong><?= number_format((int) $orderItem['order_total']) ?>₫</strong>
                                                     </div>
                                                 <?php endforeach; ?>

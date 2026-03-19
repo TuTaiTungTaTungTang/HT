@@ -28,6 +28,11 @@ class Product
         $this->db = $pdo;
     }
 
+    public static function allowedSizes(): array
+    {
+        return ['XS', 'M', 'L', 'Freezie'];
+    }
+
     public function fill(array $data): Product
     {
         $this->pd_name = $data['pd_name'] ?? '';
@@ -36,10 +41,66 @@ class Product
         $this->pd_image = $data['pd_image'] ?? '';
         $this->cat_id = $data['cat_id'] ?? '';
         $this->pd_collection = $data['pd_collection'] ?? '';
-        $allowed = ['XS', 'M', 'L', 'Freezie'];
+        $allowed = self::allowedSizes();
         $sizesRaw = isset($data['pd_sizes']) && is_array($data['pd_sizes']) ? $data['pd_sizes'] : [];
         $this->pd_sizes = implode(',', array_filter($sizesRaw, fn($s) => in_array($s, $allowed, true)));
         return $this;
+    }
+
+    public function getSizeStockMap(int $productId): array
+    {
+        $stocks = [];
+        foreach (self::allowedSizes() as $size) {
+            $stocks[$size] = 0;
+        }
+
+        $statement = $this->db->prepare('SELECT size_code, quantity FROM product_size_stock WHERE pd_id = :pd_id');
+        $statement->execute(['pd_id' => $productId]);
+
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $sizeCode = (string) ($row['size_code'] ?? '');
+            if (array_key_exists($sizeCode, $stocks)) {
+                $stocks[$sizeCode] = max(0, (int) ($row['quantity'] ?? 0));
+            }
+        }
+
+        return $stocks;
+    }
+
+    public function saveSizeStockForProduct(int $productId, array $stockData): bool
+    {
+        if ($productId <= 0) {
+            return false;
+        }
+
+        $this->db->beginTransaction();
+        try {
+            $deleteStatement = $this->db->prepare('DELETE FROM product_size_stock WHERE pd_id = :pd_id');
+            $deleteStatement->execute(['pd_id' => $productId]);
+
+            $insertStatement = $this->db->prepare('INSERT INTO product_size_stock (pd_id, size_code, quantity) VALUES (:pd_id, :size_code, :quantity)');
+
+            foreach (self::allowedSizes() as $sizeCode) {
+                $quantity = isset($stockData[$sizeCode]) ? (int) $stockData[$sizeCode] : 0;
+                if ($quantity < 0) {
+                    $quantity = 0;
+                }
+
+                $insertStatement->execute([
+                    'pd_id' => $productId,
+                    'size_code' => $sizeCode,
+                    'quantity' => $quantity,
+                ]);
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (\Throwable $th) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            return false;
+        }
     }
 
     public function getValidationErrors(): array
