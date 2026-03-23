@@ -110,6 +110,25 @@ function remove_image_file(string $filename): bool {
     return false;
 }
 
+function table_exists(PDO $pdo, string $tableName): bool
+{
+    $statement = $pdo->prepare("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table_name");
+    $statement->execute(['table_name' => $tableName]);
+
+    return (int) $statement->fetchColumn() > 0;
+}
+
+function column_exists(PDO $pdo, string $tableName, string $columnName): bool
+{
+    $statement = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table_name AND COLUMN_NAME = :column_name");
+    $statement->execute([
+        'table_name' => $tableName,
+        'column_name' => $columnName,
+    ]);
+
+    return (int) $statement->fetchColumn() > 0;
+}
+
 function ensure_product_size_stock_table(PDO $pdo): void
 {
     static $checked = false;
@@ -119,15 +138,37 @@ function ensure_product_size_stock_table(PDO $pdo): void
 
     $checked = true;
 
-    $pdo->exec('CREATE TABLE IF NOT EXISTS product_size_stock (
+    if (!table_exists($pdo, 'products') || !column_exists($pdo, 'products', 'pd_id')) {
+        return;
+    }
+
+    $tableStatement = $pdo->prepare("SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'products'");
+    $tableStatement->execute();
+    $productsEngine = strtoupper((string) $tableStatement->fetchColumn());
+    if ($productsEngine !== 'INNODB') {
+        return;
+    }
+
+    $columnStatement = $pdo->prepare("SELECT COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'products' AND COLUMN_NAME = 'pd_id'");
+    $columnStatement->execute();
+    $productIdColumnType = (string) $columnStatement->fetchColumn();
+    if ($productIdColumnType === '') {
+        return;
+    }
+
+    $pdo->exec(sprintf('CREATE TABLE IF NOT EXISTS product_size_stock (
         stock_id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-        pd_id INT(11) UNSIGNED NOT NULL,
+        pd_id %s NOT NULL,
         size_code VARCHAR(20) NOT NULL,
         quantity INT(11) NOT NULL DEFAULT 0,
         PRIMARY KEY (stock_id),
         UNIQUE KEY uniq_pd_size (pd_id, size_code),
         CONSTRAINT fk_stock_product FOREIGN KEY (pd_id) REFERENCES products(pd_id) ON DELETE CASCADE
-    ) ENGINE=InnoDB');
+    ) ENGINE=InnoDB', $productIdColumnType));
+
+    if (!column_exists($pdo, 'products', 'pd_sizes')) {
+        return;
+    }
 
     $allowedSizes = ['XS', 'M', 'L', 'Freezie'];
     $productRows = $pdo->query('SELECT pd_id, pd_sizes FROM products');
@@ -166,32 +207,51 @@ function ensure_cart_order_size_columns(PDO $pdo): void
 
     $checked = true;
 
-    try {
-        $pdo->exec("ALTER TABLE carts ADD COLUMN pd_size VARCHAR(20) NOT NULL DEFAULT 'Freezie' AFTER pd_id");
-    } catch (Throwable $th) {
-        // Ignore duplicate-column errors when schema is already up-to-date.
+    $hasCarts = table_exists($pdo, 'carts');
+    $hasOrders = table_exists($pdo, 'orders');
+    if (!$hasCarts && !$hasOrders) {
+        return;
     }
 
-    try {
-        $pdo->exec("ALTER TABLE orders ADD COLUMN pd_size VARCHAR(20) NOT NULL DEFAULT 'Freezie' AFTER pd_id");
-    } catch (Throwable $th) {
-        // Ignore duplicate-column errors when schema is already up-to-date.
+    if ($hasCarts) {
+        try {
+            $pdo->exec("ALTER TABLE carts ADD COLUMN pd_size VARCHAR(20) NOT NULL DEFAULT 'Freezie' AFTER pd_id");
+        } catch (Throwable $th) {
+            // Ignore duplicate-column and legacy schema errors.
+        }
     }
 
-    try {
-        $pdo->exec("ALTER TABLE orders ADD COLUMN stock_deducted TINYINT(1) NOT NULL DEFAULT 0 AFTER pd_quantity");
-    } catch (Throwable $th) {
-        // Ignore duplicate-column errors when schema is already up-to-date.
+    if ($hasOrders) {
+        try {
+            $pdo->exec("ALTER TABLE orders ADD COLUMN pd_size VARCHAR(20) NOT NULL DEFAULT 'Freezie' AFTER pd_id");
+        } catch (Throwable $th) {
+            // Ignore duplicate-column and legacy schema errors.
+        }
+
+        try {
+            $pdo->exec("ALTER TABLE orders ADD COLUMN stock_deducted TINYINT(1) NOT NULL DEFAULT 0 AFTER pd_quantity");
+        } catch (Throwable $th) {
+            // Ignore duplicate-column and legacy schema errors.
+        }
+
+        try {
+            $pdo->exec("ALTER TABLE orders ADD COLUMN stock_returned TINYINT(1) NOT NULL DEFAULT 0 AFTER stock_deducted");
+        } catch (Throwable $th) {
+            // Ignore duplicate-column and legacy schema errors.
+        }
     }
 
-    try {
-        $pdo->exec("ALTER TABLE orders ADD COLUMN stock_returned TINYINT(1) NOT NULL DEFAULT 0 AFTER stock_deducted");
-    } catch (Throwable $th) {
-        // Ignore duplicate-column errors when schema is already up-to-date.
+    if ($hasCarts && column_exists($pdo, 'carts', 'pd_size')) {
+        $pdo->exec("UPDATE carts SET pd_size = 'Freezie' WHERE pd_size IS NULL OR TRIM(pd_size) = ''");
     }
 
-    $pdo->exec("UPDATE carts SET pd_size = 'Freezie' WHERE pd_size IS NULL OR TRIM(pd_size) = ''");
-    $pdo->exec("UPDATE orders SET pd_size = 'Freezie' WHERE pd_size IS NULL OR TRIM(pd_size) = ''");
+    if ($hasOrders && column_exists($pdo, 'orders', 'pd_size')) {
+        $pdo->exec("UPDATE orders SET pd_size = 'Freezie' WHERE pd_size IS NULL OR TRIM(pd_size) = ''");
+    }
+
+    if (!$hasCarts || !column_exists($pdo, 'carts', 'user_id') || !column_exists($pdo, 'carts', 'pd_id') || !column_exists($pdo, 'carts', 'pd_size')) {
+        return;
+    }
 
     $pkColumns = [];
     $pkRows = [];

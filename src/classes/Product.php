@@ -7,6 +7,7 @@ use PDO;
 class Product
 {
     private ?PDO $db;
+    private array $tableExistsCache = [];
 
     private int $pd_id = -1;
     public $pd_name;
@@ -54,6 +55,10 @@ class Product
             $stocks[$size] = 0;
         }
 
+        if (!$this->hasTable('product_size_stock')) {
+            return $stocks;
+        }
+
         $statement = $this->db->prepare('SELECT size_code, quantity FROM product_size_stock WHERE pd_id = :pd_id');
         $statement->execute(['pd_id' => $productId]);
 
@@ -70,6 +75,10 @@ class Product
     public function saveSizeStockForProduct(int $productId, array $stockData): bool
     {
         if ($productId <= 0) {
+            return false;
+        }
+
+        if (!$this->hasTable('product_size_stock')) {
             return false;
         }
 
@@ -136,6 +145,10 @@ class Product
     {
         $products = [];
 
+        if (!$this->hasTable('products')) {
+            return $products;
+        }
+
         $statement = $this->db->prepare('SELECT * FROM products ORDER BY pd_id DESC');
         $statement->execute();
         while ($row = $statement->fetch()) {
@@ -166,6 +179,10 @@ class Product
     // Tìm sản phẩm với id
     public function find(int $id): ?Product
     {
+        if (!$this->hasTable('products')) {
+            return null;
+        }
+
         $statement = $this->db->prepare('SELECT * FROM products WHERE pd_id = :id');
         $statement->execute(['id' => $id]);
 
@@ -181,6 +198,10 @@ class Product
     public function save(): bool
     {
         $result = false;
+
+        if (!$this->hasTable('products')) {
+            return false;
+        }
 
         if ($this->pd_id >= 0) {
             $statement = $this->db->prepare('UPDATE products 
@@ -230,6 +251,10 @@ class Product
     // Xóa sản phẩm
     public function delete(): bool
     {
+        if (!$this->hasTable('products')) {
+            return false;
+        }
+
         $statement = $this->db->prepare('DELETE FROM products WHERE pd_id = ?');
         return $statement->execute([$this->pd_id]);
     }
@@ -237,6 +262,10 @@ class Product
     // Đếm số lượng sản phẩm
     public function count($cat_id, ?float $minPrice = null, ?float $maxPrice = null, array $keywords = [], bool $isNew = false, ?string $size = null, ?string $collectionCode = null): int
     {
+        if (!$this->hasTable('products')) {
+            return 0;
+        }
+
         $sql = 'SELECT count(*) FROM products WHERE 1=1';
         $params = [];
 
@@ -299,6 +328,10 @@ class Product
     ): array
     {
         $products = [];
+        if (!$this->hasTable('products')) {
+            return $products;
+        }
+
         $orderBy = match ($sort) {
             'name_asc' => 'pd_name ASC',
             'name_desc' => 'pd_name DESC',
@@ -389,6 +422,10 @@ class Product
     {
         $products = [];
 
+        if (!$this->hasTable('products')) {
+            return false;
+        }
+
         $statement = $this->db->prepare('SELECT * FROM products WHERE pd_name LIKE :search ORDER BY pd_id DESC');
         $statement->execute([':search' => '%' . $key . '%']);
 
@@ -411,6 +448,10 @@ class Product
     {
         $products = [];
 
+        if (!$this->hasTable('products')) {
+            return $products;
+        }
+
         $statement = $this->db->prepare('SELECT * FROM products WHERE cat_id = ? ORDER BY pd_id DESC LIMIT 6');
         $statement->execute([$catID]);
         while ($row = $statement->fetch()) {
@@ -425,6 +466,10 @@ class Product
     public function getByCollection(string $collectionCode, int $limit = 4): array
     {
         $products = [];
+        if (!$this->hasTable('products')) {
+            return $products;
+        }
+
         $statement = $this->db->prepare('SELECT * FROM products WHERE pd_collection = ? ORDER BY pd_id ASC LIMIT ?');
         $statement->bindValue(1, $collectionCode);
         $statement->bindValue(2, $limit, PDO::PARAM_INT);
@@ -441,6 +486,10 @@ class Product
     {
         $products = [];
 
+        if (!$this->hasTable('products')) {
+            return $products;
+        }
+
         $statement = $this->db->prepare(
             'SELECT * FROM products WHERE cat_id = :cat_id AND pd_id <> :exclude_id ORDER BY pd_id DESC LIMIT :limit'
         );
@@ -456,5 +505,28 @@ class Product
         }
 
         return $products;
+    }
+
+    private function hasTable(string $tableName): bool
+    {
+        if (array_key_exists($tableName, $this->tableExistsCache)) {
+            return $this->tableExistsCache[$tableName];
+        }
+
+        if (!$this->db) {
+            $this->tableExistsCache[$tableName] = false;
+            return false;
+        }
+
+        try {
+            $statement = $this->db->prepare('SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table_name');
+            $statement->execute(['table_name' => $tableName]);
+            $exists = ((int) $statement->fetchColumn()) > 0;
+            $this->tableExistsCache[$tableName] = $exists;
+            return $exists;
+        } catch (\Throwable $th) {
+            $this->tableExistsCache[$tableName] = false;
+            return false;
+        }
     }
 }

@@ -11,7 +11,7 @@ $loader->addNamespace('ct523\Project', __DIR__.'/classes');
 try{
     $PDO = (new ct523\Project\PDOFactory())->create([
         'dbhost' =>'localhost',
-        'dbname' => 'ct523',
+        'dbname' => 'ct523-project',
         'dbuser' => 'root',
         'dbpass' => ''
     ]);

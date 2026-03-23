@@ -7,6 +7,7 @@ use PDO;
 class Category
 {
     private ?PDO $db;
+    private array $tableExistsCache = [];
 
     private int $cat_id = -1;
     public $cat_name;
@@ -49,6 +50,10 @@ class Category
     {
         $categories = [];
 
+        if (!$this->hasTable('categories')) {
+            return $categories;
+        }
+
         $statement = $this->db->prepare('SELECT * FROM categories');
         $statement->execute();
         while ($row = $statement->fetch()) {
@@ -72,6 +77,10 @@ class Category
 
     public function find(int $id): ?Category
     {
+        if (!$this->hasTable('categories')) {
+            return null;
+        }
+
         $statement = $this->db->prepare('SELECT * FROM categories WHERE cat_id = :id');
         $statement->execute(['id' => $id]);
 
@@ -86,6 +95,10 @@ class Category
     public function save(): bool
     {
         $result = false;
+
+        if (!$this->hasTable('categories')) {
+            return false;
+        }
 
         if ($this->cat_id >= 0) {
             $statement = $this->db->prepare('UPDATE categories SET cat_name=? WHERE cat_id = ?');
@@ -113,13 +126,44 @@ class Category
 
     public function delete(): bool
     {
+        if (!$this->hasTable('categories')) {
+            return false;
+        }
+
         $statement = $this->db->prepare('DELETE FROM categories WHERE cat_id = ?');
         return $statement->execute([$this->cat_id]);
     }
 
     public function getNameByID($id): string {
+        if (!$this->hasTable('categories')) {
+            return '';
+        }
+
         $statement = $this->db->prepare('SELECT cat_name FROM categories WHERE cat_id = ?');
         $statement->execute([$id]);
         return $statement->fetchColumn();
+    }
+
+    private function hasTable(string $tableName): bool
+    {
+        if (array_key_exists($tableName, $this->tableExistsCache)) {
+            return $this->tableExistsCache[$tableName];
+        }
+
+        if (!$this->db) {
+            $this->tableExistsCache[$tableName] = false;
+            return false;
+        }
+
+        try {
+            $statement = $this->db->prepare('SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table_name');
+            $statement->execute(['table_name' => $tableName]);
+            $exists = ((int) $statement->fetchColumn()) > 0;
+            $this->tableExistsCache[$tableName] = $exists;
+            return $exists;
+        } catch (\Throwable $th) {
+            $this->tableExistsCache[$tableName] = false;
+            return false;
+        }
     }
 }
