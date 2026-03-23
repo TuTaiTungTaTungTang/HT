@@ -1,109 +1,138 @@
 
+# Online Store (PHP + MySQL)
 
-**SQL**
-CREATE TABLE `products` (
-    `pd_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `pd_name` varchar(255) NOT NULL,
-    `pd_price` varchar(255) NOT NULL,
-    `pd_info` text NOT NULL,
-    `pd_image` varchar(255) NOT NULL,
-    `cat_id` int(11) unsigned NOT NULL,
-    PRIMARY KEY (`pd_id`),
-    FOREIGN KEY(`cat_id`) REFERENCES `categories`(`cat_id`)
-) ENGINE=InnoDB;
+Website bán hàng thời trang viết bằng PHP thuần, dùng MySQL/MariaDB và chạy tốt với XAMPP trên Windows.
 
-CREATE TABLE `categories` (
-`cat_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-`cat_name` varchar(255) NOT NULL,
-PRIMARY KEY (`cat_id`)
-) ENGINE=InnoDB;
+## 1. Tính năng chính
 
+- Xem danh sách sản phẩm, chi tiết sản phẩm, tìm kiếm, lọc theo danh mục/collection.
+- Giỏ hàng và đặt hàng theo size (`XS`, `M`, `L`, `Freezie`).
+- Theo dõi đơn hàng theo trạng thái.
+- Quản trị viên quản lý danh mục, sản phẩm, người dùng, đơn hàng.
+- Quản lý tồn kho theo size qua bảng `product_size_stock`.
 
-CREATE TABLE `users` (
-    `user_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `user_name` varchar(255) NOT NULL,
-    `user_email` varchar(255) NOT NULL,
-    `user_psw` varchar(32) NOT NULL,
-    `role` varchar(5) NOT NULL DEFAULT 'user',
-    PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB;
+## 2. Công nghệ sử dụng
 
+- PHP 8.x (PDO)
+- MySQL/MariaDB
+- Bootstrap + CSS/JS thuần
+- Autoload theo PSR-4 (file `libraries/Psr4AutoloaderClass.php`)
 
-CREATE TABLE `carts` (
-    `user_id` int(11) unsigned NOT NULL,
-    `pd_id` int(11) unsigned NOT NULL,
-    `pd_quantity` int(6) NOT NULL,
-    PRIMARY KEY (`user_id`, `pd_id` ),
-    FOREIGN KEY(`user_id`) REFERENCES `users`(`user_id`),
-    FOREIGN KEY(`pd_id`) REFERENCES `products`(`pd_id`)
-) ENGINE=InnoDB;
+## 3. Cấu trúc thư mục quan trọng
 
-CREATE TABLE `orders` (
-    `order_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `order_code` int(5) NOT NULL,
-   	`user_id` int(11) unsigned NOT NULL,
-    `address` varchar(255)	 NOT NULL,
-    `phone` varchar(15) NOT NULL,
-    `pd_id` int(11) unsigned NOT NULL,
-    `pd_quantity` int(6) NOT NULL,
-    `order_total` int(12) NOT NULL,
-    `order_status` boolean NOT NULL default 0,
-    PRIMARY KEY (`order_id`, `order_code` ),
-    FOREIGN KEY(`pd_id`) REFERENCES `products`(`pd_id`),
-    FOREIGN KEY( `user_id`) REFERENCES `users`( `user_id`)
-) ENGINE=InnoDB;
+- `public/`: các trang web truy cập trực tiếp (index, login, product, cart, admin CRUD).
+- `src/bootstrap.php`: khởi tạo kết nối DB và gọi các hàm đảm bảo schema.
+- `src/functions.php`: helper chung và các hàm migration tự động.
+- `src/classes/`: các lớp `Product`, `Category`, `Cart`, `Order`, `User`, `Profile`, `PDOFactory`.
+- `src/partials/`: header/footer/navbar/template dùng lại.
+- `ct523-project.sql`: file SQL đầy đủ để khởi tạo dữ liệu.
+- `create_admin.php`: tạo tài khoản admin mặc định.
 
-<!-- Thêm người quản lý -->
+## 4. Yêu cầu môi trường
 
-INSERT INTO `users` (`user_id`, `user_name`, `user_email`, `user_psw`, `role`) VALUES (NULL, 'admin', 'admin@gmail.com', '000000000', 'admin');
+- XAMPP (Apache + MySQL) đang chạy.
+- PHP extension PDO MySQL bật sẵn (mặc định trong XAMPP).
+- Project đặt tại `htdocs/onlinestore`.
 
-<!-- Thêm loại sản phẩm -->
+## 5. Cài đặt nhanh
 
-INSERT INTO `categories` (`cat_id`, `cat_name`) VALUES
-(1, 'Áo'),
-(2, 'Quần'),
-(3, 'Phụ kiện');
+### Bước 1: Import database
 
-<!-- Thêm mặt hàng thời trang mẫu -->
+1. Mở phpMyAdmin.
+2. Tạo database tên `ct523-project`.
+3. Import file `ct523-project.sql`.
 
-INSERT INTO `products` (`pd_id`, `pd_name`, `pd_price`, `pd_info`, `pd_image`, `cat_id`) VALUES
-(1, 'Áo thun cotton trắng basic', '149000', 'Áo thun cotton mềm, thoáng mát, phù hợp mặc hằng ngày.', 'ao-thun-trang.jpg', 1),
-(2, 'Áo sơ mi nam Oxford xanh navy', '285000', 'Áo sơ mi lịch sự, chất vải dày dặn, phù hợp đi làm.', 'ao-so-mi-oxford-navy.jpg', 1),
-(3, 'Áo khoác bomber unisex', '420000', 'Áo khoác bomber trẻ trung, có túi hông và khóa kéo bền.', 'ao-khoac-bomber.jpg', 1),
-(4, 'Áo hoodie nỉ ngoại', '375000', 'Hoodie nỉ dày dặn, giữ ấm tốt, form rộng dễ phối đồ.', 'ao-hoodie-ni.jpg', 1),
-(5, 'Áo polo nam cao cấp', '195000', 'Áo polo vải cá sấu, thiết kế đơn giản, dễ mặc.', 'ao-polo-nam.jpg', 1),
-(6, 'Áo khoác jean washed', '465000', 'Áo khoác jean phong cách, bền đẹp và dễ phối trang phục.', 'ao-khoac-jean.jpg', 1),
-(7, 'Áo polo nữ tay ngắn', '165000', 'Áo polo nữ dáng suông, chất liệu mềm, thoải mái vận động.', 'ao-polo-nu.jpg', 1),
-(8, 'Bộ đồ mặc nhà cotton', '295000', 'Bộ đồ mặc nhà thoáng mát, dễ chịu, phù hợp mặc hằng ngày.', 'bo-do-mac-nha.jpg', 1),
-(9, 'Áo thể thao nữ dry-fit', '189000', 'Áo thể thao nữ thoát ẩm nhanh, co giãn tốt khi tập luyện.', 'ao-the-thao-nu.jpg', 1),
-(10, 'Áo sơ mi nữ trắng công sở', '245000', 'Áo sơ mi nữ thanh lịch, dễ phối với quần tây hoặc chân váy.', 'ao-so-mi-nu-trang.jpg', 1),
-(11, 'Áo thun nam cổ tim', '135000', 'Áo thun cổ tim trẻ trung, chất vải mềm và dễ giặt.', 'ao-thun-co-tim.jpg', 1),
-(12, 'Áo giữ nhiệt nam nữ', '175000', 'Áo giữ nhiệt mỏng nhẹ, giữ ấm tốt cho ngày lạnh.', 'ao-giu-nhiet.jpg', 1),
-(13, 'Áo cardigan len mỏng', '259000', 'Áo cardigan len mỏng, mặc khoác ngoài lịch sự và gọn gàng.', 'ao-cardigan-len.jpg', 1),
-(14, 'Quần jean nữ skinny', '385000', 'Quần jean nữ co giãn nhẹ, ôm dáng vừa vặn.', 'quan-jean-nu-skinny.jpg', 2),
-(15, 'Quần short kaki nam', '245000', 'Quần short kaki thoáng mát, phù hợp đi chơi và dạo phố.', 'quan-short-kaki.jpg', 2),
-(16, 'Quần jogger thể thao', '295000', 'Quần jogger bo ống gọn, chất vải nhẹ và dễ vận động.', 'quan-jogger.jpg', 2),
-(17, 'Quần tây nam slimfit', '425000', 'Quần tây nam form slimfit, lịch sự cho môi trường công sở.', 'quan-tay-nam.jpg', 2),
-(18, 'Quần jean nam baggy', '395000', 'Quần jean nam ống rộng, phong cách streetwear hiện đại.', 'quan-jean-baggy.jpg', 2),
-(19, 'Quần legging nữ gym', '185000', 'Quần legging nữ co giãn 4 chiều, phù hợp tập gym hoặc yoga.', 'quan-legging.jpg', 2),
-(20, 'Quần culottes nữ linen', '335000', 'Quần culottes ống rộng, chất linen mát, dáng đẹp.', 'quan-culottes.jpg', 2),
-(21, 'Quần nỉ nam nữ', '275000', 'Quần nỉ mềm ấm, mặc nhà hoặc đi chơi đều phù hợp.', 'quan-ni.jpg', 2),
-(22, 'Quần short jean nữ', '265000', 'Quần short jean nữ trẻ trung, dễ phối với áo thun.', 'quan-short-jean.jpg', 2),
-(23, 'Quần kaki nữ ống suông', '355000', 'Quần kaki nữ ống suông, thanh lịch cho môi trường công sở.', 'quan-kaki-nu.jpg', 2),
-(24, 'Quần short thể thao nam', '195000', 'Quần short thể thao nhẹ, nhanh khô và thoáng khí.', 'quan-short-the-thao.jpg', 2),
-(25, 'Quần dài nữ vải tuyết mưa', '315000', 'Quần dài nữ vải đẹp, ít nhăn, dễ bảo quản.', 'quan-dai-nu.jpg', 2),
-(26, 'Quần jean nam slim fit', '385000', 'Quần jean nam slim fit dễ mặc, dễ kết hợp trang phục.', 'quan-jean-nam-slim.jpg', 2),
-(27, 'Quần baggy nữ kaki', '295000', 'Quần baggy nữ phong cách Hàn Quốc, mặc thoải mái.', 'quan-baggy-nu.jpg', 2),
-(28, 'Quần thể thao nữ dài', '235000', 'Quần thể thao nữ co giãn, phù hợp tập luyện hằng ngày.', 'quan-the-thao-nu.jpg', 2),
-(29, 'Túi tote canvas', '125000', 'Túi tote vải canvas bền đẹp, đựng được nhiều vật dụng.', 'tui-tote-canvas.jpg', 3),
-(30, 'Mũ lưỡi trai unisex', '89000', 'Mũ lưỡi trai đơn giản, dễ đội, dễ phối đồ.', 'mu-luoi-trai.jpg', 3),
-(31, 'Balo laptop 15.6 inch', '425000', 'Balo chống nước nhẹ, có ngăn riêng cho laptop.', 'balo-laptop.jpg', 3),
-(32, 'Dây nịt da nam', '185000', 'Dây nịt da khóa tự động, phù hợp đi làm và sự kiện.', 'day-nit-da.jpg', 3),
-(33, 'Vớ cổ cao thể thao', '85000', 'Bộ vớ cổ cao mềm, thoáng, dùng cho sinh hoạt hằng ngày.', 'vo-co-cao.jpg', 3),
-(34, 'Khăn choàng cổ len', '145000', 'Khăn len mềm, giữ ấm tốt trong thời tiết lạnh.', 'khan-choang-len.jpg', 3),
-(35, 'Túi xách nữ da PU', '385000', 'Túi xách nữ kích thước vừa, tiện dụng khi đi làm.', 'tui-xach-nu.jpg', 3),
-(36, 'Mũ len beanie', '75000', 'Mũ len beanie đơn giản, giữ ấm và dễ phối trang phục.', 'mu-beanie.jpg', 3),
-(37, 'Balo mini nữ', '255000', 'Balo mini nữ nhỏ gọn, phù hợp đi chơi hoặc dạo phố.', 'balo-mini-nu.jpg', 3),
-(38, 'Mũ bucket 2 mặt', '95000', 'Mũ bucket 2 mặt tiện dụng, che nắng tốt.', 'mu-bucket.jpg', 3),
-(39, 'Kính mát chống UV', '175000', 'Kính mát thời trang chống tia UV, bảo vệ mắt.', 'kinh-mat.jpg', 3),
-(40, 'Túi đeo chéo vải dù', '145000', 'Túi đeo chéo nhỏ gọn, chất liệu vải dù chống nước nhẹ.', 'tui-deo-cheo.jpg', 3);
+Luu y: trong code (`src/bootstrap.php`) đang dùng:
+
+```php
+'dbname' => 'ct523-project'
+```
+
+Neu ban import vao ten khac (vi du `ct523`) thi phai doi lai `dbname` cho khop.
+
+### Bước 2: Cấu hình kết nối DB
+
+Kiểm tra `src/bootstrap.php`:
+
+```php
+'dbhost' => 'localhost',
+'dbname' => 'ct523-project',
+'dbuser' => 'root',
+'dbpass' => ''
+```
+
+### Bước 3: Chạy dự án
+
+Truy cập:
+
+- `http://localhost/onlinestore/public/index.php`
+
+## 6. Tài khoản admin mặc định
+
+Chạy một lần:
+
+- `http://localhost/onlinestore/create_admin.php`
+
+Tai khoan duoc tao:
+
+- Email: `admin@gmail.com`
+- Password: `123456`
+
+## 7. Cơ chế migration tự động khi bootstrap
+
+Mỗi lần ứng dụng load `src/bootstrap.php`, hệ thống sẽ gọi:
+
+- `ensure_user_profile_columns($PDO)`
+    - Bổ sung các cột profile của `users` nếu thiếu.
+- `ensure_product_size_stock_table($PDO)`
+    - Tạo bảng `product_size_stock` và đồng bộ tồn kho theo size từ `products`.
+- `ensure_cart_order_size_columns($PDO)`
+    - Bổ sung cột size trong `carts`/`orders`, thêm cột tracking tồn kho cho `orders`.
+
+Các hàm này có guard để tránh crash khi schema chưa đầy đủ.
+
+## 8. Vai trò người dùng
+
+- `user`: duyệt sản phẩm, giỏ hàng, đặt hàng, xem profile.
+- `admin`: thêm/sửa/xóa danh mục, sản phẩm, người dùng, quản lý đơn hàng.
+
+## 9. Lưu ý bảo mật
+
+Hiện tại password đang lưu dạng plain text trong DB. Khi deploy thực tế, nên chuyển sang:
+
+- `password_hash()` khi lưu
+- `password_verify()` khi đăng nhập
+
+## 10. Cac file `tmp_*.php` co can giu khong?
+
+Các file `tmp_*.php` trong root là script tạm để seed/migrate/check dữ liệu.
+
+- Không được include trong runtime chính.
+- Có thể xóa an toàn nếu không cần chạy lại các tác vụ tạm.
+
+Nếu cần dọn project, có thể xóa toàn bộ `tmp_*.php`.
+
+## 11. Lỗi thường gặp và cách xử lý nhanh
+
+### Loi: `Table '...products' doesn't exist` hoặc `...categories doesn't exist`
+
+- Nguyên nhân: DB chưa import đúng hoặc sai tên DB.
+- Cách xử lý:
+    1. Import `ct523-project.sql`.
+    2. Kiểm tra `dbname` trong `src/bootstrap.php`.
+
+### Loi FK khi tao `product_size_stock`
+
+- Thường do bảng `products` chưa tồn tại hoặc schema lệch.
+- Cần import lại SQL chuẩn, sau đó reload trang.
+
+### Khong dang nhap duoc admin
+
+- Chạy lại `create_admin.php` để tạo mới tài khoản admin.
+
+## 12. Gợi ý phát triển tiếp
+
+- Hash password và thêm cơ chế reset password.
+- Tách migration ra file riêng thay vì chạy trong bootstrap mỗi request.
+- Thêm `.env` cho cấu hình DB.
+- Viết test cơ bản cho các luồng `Cart`, `Order`, `Product`.
