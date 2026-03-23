@@ -1,7 +1,7 @@
 ﻿<?php 
 require_once __DIR__ .'/../src/bootstrap.php';
 
-use CT27502\Project\Profile;
+use ct523\Project\Profile;
 
 session_start();
 $errors= [];

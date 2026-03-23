@@ -19,7 +19,7 @@ $bstMenuItems = [
 ];
 
 if ($isUserLoggedIn && isset($PDO)) {
-    $miniCart = new CT27502\Project\Cart($PDO);
+    $miniCart = new ct523\Project\Cart($PDO);
     $miniCart->fillUser($_SESSION);
     $miniCartItems = $miniCart->all();
     foreach ($miniCartItems as $miniCartItem) {

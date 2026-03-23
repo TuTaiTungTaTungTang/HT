@@ -1,8 +1,8 @@
 ﻿<?php
 require_once __DIR__ . '/../src/bootstrap.php';
 
-use CT27502\Project\Product;
-use CT27502\Project\Category;
+use ct523\Project\Product;
+use ct523\Project\Category;
 
 $product = new Product($PDO);
 $allProducts = $product->all();

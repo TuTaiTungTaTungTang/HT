@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../src/bootstrap.php';
 
-use CT27502\Project\Order;
-use CT27502\Project\Profile;
+use ct523\Project\Order;
+use ct523\Project\Profile;
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

@@ -7,7 +7,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
     redirect('/');
 }
 
-use CT27502\Project\User;
+use ct523\Project\User;
 
 if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     $userId = (int)$_POST['id'];

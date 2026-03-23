@@ -7,7 +7,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
     redirect('/');
 }
 
-use CT27502\Project\User;
+use ct523\Project\User;
 
 $user = new User($PDO);
 $users = $user->all();

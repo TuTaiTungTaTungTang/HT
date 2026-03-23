@@ -13,8 +13,8 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='user') {
 
     <?php
 
-    use CT27502\Project\Cart;
-    use CT27502\Project\Order;
+    use ct523\Project\Cart;
+    use ct523\Project\Order;
 
     $errors = [];
 

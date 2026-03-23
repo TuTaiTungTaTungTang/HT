@@ -1,7 +1,7 @@
 ﻿<?php
 require_once __DIR__ . '/../src/bootstrap.php';
 
-use CT27502\Project\Product;
+use ct523\Project\Product;
 
 $product = new Product($PDO);
 

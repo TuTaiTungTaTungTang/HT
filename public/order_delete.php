@@ -7,7 +7,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
     redirect('/');
 }
 
-use CT27502\Project\Order;
+use ct523\Project\Order;
 
 $order = new Order($PDO);
 

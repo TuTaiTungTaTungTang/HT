@@ -15,7 +15,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
     <?php include_once __DIR__ . '/../src/partials/navbar.php' ?>
 
     <?php 
-        use CT27502\Project\Order;
+        use ct523\Project\Order;
 
         $order = new Order($PDO);
         $order_codes = $order->allCode();

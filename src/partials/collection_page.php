@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../bootstrap.php';
 
-use CT27502\Project\Paginator;
-use CT27502\Project\Product;
+use ct523\Project\Paginator;
+use ct523\Project\Product;
 
 $collectionDefinitions = require __DIR__ . '/../collection_definitions.php';
 $collectionSlug = isset($collectionSlug) ? (string) $collectionSlug : 'tat-ca-san-pham';

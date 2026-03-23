@@ -1,6 +1,6 @@
 <?php
 
-namespace CT27502\Project;
+namespace ct523\Project;
 
 use PDO;
 

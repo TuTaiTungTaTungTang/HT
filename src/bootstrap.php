@@ -6,12 +6,12 @@ require_once __DIR__ .'/../libraries/Psr4AutoloaderClass.php';
 $loader = new Psr4AutoloaderClass;
 $loader -> register();
 
-$loader->addNamespace('CT27502\Project', __DIR__.'/classes');
+$loader->addNamespace('ct523\Project', __DIR__.'/classes');
 
 try{
-    $PDO = (new CT27502\Project\PDOFactory())->create([
+    $PDO = (new ct523\Project\PDOFactory())->create([
         'dbhost' =>'localhost',
-        'dbname' => 'ct27502-project',
+        'dbname' => 'ct523',
         'dbuser' => 'root',
         'dbpass' => ''
     ]);

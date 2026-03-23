@@ -7,7 +7,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role']!=='admin') {
     redirect('/');
 }
 
-use CT27502\Project\Product;
+use ct523\Project\Product;
 
 $product = new Product($PDO);
 

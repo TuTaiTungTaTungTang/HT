@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th3 19, 2026 lúc 06:24 AM
+-- Thời gian đã tạo: Th3 23, 2026 lúc 08:40 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.0.30
 
@@ -833,7 +833,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT cho bảng `product_size_stock`
 --
 ALTER TABLE `product_size_stock`
-  MODIFY `stock_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51309;
+  MODIFY `stock_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57609;
 
 --
 -- AUTO_INCREMENT cho bảng `users`
