@@ -16,7 +16,9 @@ use ct523\Project\Product;
 $productModel = new Product($PDO);
 $allProducts = $productModel->all();
 $categoryModel = new Category($PDO);
+$categories = $categoryModel->all();
 $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
+$selectedCategory = isset($_GET['category']) && ctype_digit((string)$_GET['category']) ? (int) $_GET['category'] : 0;
 
 // Function to get the correct image file for a product
 function getProductImagePath($product) {
@@ -61,13 +63,24 @@ function getProductImagePath($product) {
 
     return 'assets/images/placeholder.svg';
 }
-// Lọc sản phẩm theo tìm kiếm
+// Lọc sản phẩm theo tìm kiếm và theo category
 $products = $allProducts;
-if (!empty($searchQuery)) {
-    $products = array_filter($allProducts, function ($product) use ($searchQuery) {
-        $query = strtolower($searchQuery);
-        return strpos(strtolower($product->pd_name), $query) !== false ||
-               strpos((string) $product->getID(), $query) !== false;
+if (!empty($searchQuery) || $selectedCategory > 0) {
+    $products = array_filter($allProducts, function ($product) use ($searchQuery, $selectedCategory) {
+        $matchSearch = true;
+        $matchCategory = true;
+
+        if (!empty($searchQuery)) {
+            $query = strtolower($searchQuery);
+            $matchSearch = strpos(strtolower($product->pd_name), $query) !== false ||
+                strpos((string) $product->getID(), $query) !== false;
+        }
+
+        if ($selectedCategory > 0) {
+            $matchCategory = (int) $product->cat_id === $selectedCategory;
+        }
+
+        return $matchSearch && $matchCategory;
     });
 }
 
@@ -318,9 +331,25 @@ include_once __DIR__ . '/../src/partials/header.php';
                         <?php endif; ?>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="input-group input-group-lg">
+                        <select name="category" class="form-select" onchange="this.form.submit()">
+                            <option value="0" <?= $selectedCategory === 0 ? 'selected' : '' ?>>Tất cả danh mục</option>
+                            <?php foreach ($categories as $category): ?>
+                                <option value="<?= $category->getID() ?>" <?= $selectedCategory === $category->getID() ? 'selected' : '' ?>><?= html_escape($category->cat_name) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if ($selectedCategory > 0): ?>
+                            <a href="stock_size_list.php<?= !empty($searchQuery) ? '?search=' . urlencode($searchQuery) : '' ?>" class="btn btn-outline-secondary">Bỏ khóa</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
                 <div class="col-md-6 text-md-end d-flex align-items-center justify-content-md-end">
                     <span class="text-muted">
                         Hiển thị: <strong><?= count($products) ?></strong> sản phẩm
+                        <?php if ($selectedCategory > 0): ?>
+                            • Khóa: <strong><?= html_escape($categoryModel->getNameByID($selectedCategory)) ?></strong>
+                        <?php endif; ?>
                     </span>
                 </div>
             </form>
